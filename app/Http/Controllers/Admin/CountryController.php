@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Port;
 use App\Models\Country;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
-class PortController extends Controller
+class CountryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,31 +18,28 @@ class PortController extends Controller
         $sortBy = $request->get('sort', 'name');
         $direction = $request->get('direction', 'asc');
 
-        $allowedSorts = ['name', 'code', 'country_id', 'latitude', 'longitude'];
+        // Verify valid sorting column to prevent SQL injection
+        $allowedSorts = ['name', 'code', 'currency_code', 'region', 'latitude', 'longitude'];
         if (!in_array($sortBy, $allowedSorts)) {
             $sortBy = 'name';
         }
 
+        // Verify direction
         if (!in_array($direction, ['asc', 'desc'])) {
             $direction = 'asc';
         }
 
-        $ports = Port::query()
-            ->with('country')
+        $countries = Country::query()
             ->when($search, function ($query, $search) {
                 return $query->where('name', 'like', "%{$search}%")
                     ->orWhere('code', 'like', "%{$search}%")
-                    ->orWhereHas('country', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    });
+                    ->orWhere('region', 'like', "%{$search}%");
             })
             ->orderBy($sortBy, $direction)
             ->paginate(10)
             ->withQueryString();
 
-        $countries = Country::orderBy('name', 'asc')->get();
-
-        return view('admin.ports.index', compact('ports', 'countries', 'search', 'sortBy', 'direction'));
+        return view('admin.countries.index', compact('countries', 'search', 'sortBy', 'direction'));
     }
 
     /**
@@ -52,49 +49,60 @@ class PortController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:10', 'unique:ports,code'],
-            'country_id' => ['required', 'exists:countries,id'],
+            'code' => ['required', 'string', 'size:2', 'unique:countries,code', 'alpha'],
+            'currency_code' => ['required', 'string', 'size:3', 'alpha'],
+            'region' => ['required', 'string', 'max:255'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
         ]);
 
+        // Standardize code to uppercase
         $validated['code'] = strtoupper($validated['code']);
+        $validated['currency_code'] = strtoupper($validated['currency_code']);
 
-        Port::create($validated);
+        Country::create($validated);
 
-        return redirect()->route('admin.ports.index')
-            ->with('success', 'Pelabuhan berhasil ditambahkan!');
+        return redirect()->route('admin.countries.index')
+            ->with('success', 'Negara berhasil ditambahkan!');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Port $port)
+    public function update(Request $request, Country $country)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:10', 'unique:ports,code,' . $port->id],
-            'country_id' => ['required', 'exists:countries,id'],
+            'code' => [
+                'required', 
+                'string', 
+                'size:2', 
+                Rule::unique('countries')->ignore($country->id),
+                'alpha'
+            ],
+            'currency_code' => ['required', 'string', 'size:3', 'alpha'],
+            'region' => ['required', 'string', 'max:255'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
         ]);
 
         $validated['code'] = strtoupper($validated['code']);
+        $validated['currency_code'] = strtoupper($validated['currency_code']);
 
-        $port->update($validated);
+        $country->update($validated);
 
-        return redirect()->route('admin.ports.index')
-            ->with('success', 'Pelabuhan berhasil diperbarui!');
+        return redirect()->route('admin.countries.index')
+            ->with('success', 'Negara berhasil diperbarui!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Port $port)
+    public function destroy(Country $country)
     {
-        $port->delete();
+        $country->delete();
 
-        return redirect()->route('admin.ports.index')
-            ->with('success', 'Pelabuhan berhasil dihapus!');
+        return redirect()->route('admin.countries.index')
+            ->with('success', 'Negara berhasil dihapus!');
     }
 }

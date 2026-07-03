@@ -21,6 +21,9 @@
             <li class="{{ request()->routeIs('admin.ports.*') ? 'active' : '' }}">
                 <a href="{{ route('admin.ports.index') }}"><i class="bi bi-anchor me-2"></i>Kelola Pelabuhan</a>
             </li>
+            <li class="{{ request()->routeIs('admin.countries.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.countries.index') }}"><i class="bi bi-globe me-2"></i>Kelola Negara</a>
+            </li>
             <li class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <a href="{{ route('admin.users.index') }}"><i class="bi bi-people me-2"></i>Kelola User</a>
             </li>

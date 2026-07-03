@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\PortController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\CountryController;
 
 // Guest Landing Page
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -39,6 +40,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('articles', ArticleController::class);
     Route::resource('ports', PortController::class);
+    Route::resource('countries', CountryController::class);
     Route::resource('users', UserController::class)->only(['index', 'destroy']);
 });
 

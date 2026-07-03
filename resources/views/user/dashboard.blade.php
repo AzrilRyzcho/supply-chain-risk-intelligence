@@ -9,7 +9,7 @@
         <div class="col-12">
             <div class="card card-custom p-4 text-white position-relative overflow-hidden" 
                  style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(255, 255, 255, 0.08);">
-                <div class="position-absolute top-0 end-0 p-3 opacity-10" style="font-size: 8rem; pointer-events: none;">
+                <div class="position-absolute top-50 end-0 translate-middle-y me-4 opacity-10" style="font-size: 6rem; pointer-events: none;">
                     <i class="bi bi-shield-fill-check"></i>
                 </div>
                 <div class="row align-items-center">
