@@ -96,9 +96,6 @@ class CountryService
             
             $country->save();
             
-            // Cache the updated model for 24 hours
-            Cache::put("country_details_{$cca2}", $country, 86400);
-            
             return $country;
             
         } catch (\Exception $e) {
@@ -114,31 +111,38 @@ class CountryService
     {
         $code = strtoupper($code);
         
-        return Cache::remember("country_details_{$code}", 86400, function () use ($code) {
-            $country = Country::where('code', $code)->first();
-            
-            try {
-                // If country doesn't have API details, trigger sync
-                if ($country && (empty($country->flag) || empty($country->population))) {
-                    return $this->syncCountry($code);
+        // Retrieve the country from database directly to avoid __PHP_Incomplete_Class serialization issues
+        $country = Country::where('code', $code)->first();
+        
+        try {
+            // If country is missing or does not have API details, trigger sync
+            if (!$country || empty($country->flag) || empty($country->population)) {
+                
+                // Use a cache lock/flag to throttle API calls to 1 sync per 5 minutes per country
+                $syncLockKey = "country_sync_lock_{$code}";
+                
+                if (!Cache::has($syncLockKey)) {
+                    $syncedCountry = $this->syncCountry($code);
+                    
+                    // Throttling lock for 10 minutes to prevent API spamming
+                    Cache::put($syncLockKey, true, 600);
+                    
+                    if ($syncedCountry) {
+                        return $syncedCountry;
+                    }
                 }
-                
-                // If country is completely missing from local DB, try to fetch and create it
-                if (!$country) {
-                    return $this->syncCountry($code);
-                }
-                
-                return $country;
-            } catch (\Exception $e) {
-                // If API fails, fall back to local database record to keep application running
-                Log::warning("REST Countries API failed during detail fetch for code [{$code}]. Falling back to database: " . $e->getMessage());
-                
-                if ($country) {
-                    return $country;
-                }
-                
-                return null;
             }
-        });
+            
+            return $country;
+        } catch (\Exception $e) {
+            // Fall back to database record to ensure application resilience
+            Log::warning("REST Countries API failed during detail fetch for code [{$code}]. Falling back to database: " . $e->getMessage());
+            
+            if ($country) {
+                return $country;
+            }
+            
+            return null;
+        }
     }
 }
