@@ -1,0 +1,13 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+// Bootstrap Variables Override (Optional, e.g. custom primary color)
+$primary: #0f172a;
+$secondary: #475569;
+$success: #10b981;
+$info: #06b6d4;
+$warning: #f59e0b;
+$danger: #ef4444;
+
+// Import Bootstrap
+@import 'bootstrap/scss/bootstrap';

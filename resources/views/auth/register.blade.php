@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar - RiskIntel</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .register-card {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card register-card p-4 shadow-lg">
+                    <h3 class="fw-bold text-center text-white mb-3">Daftar Akun Baru</h3>
+                    <p class="text-secondary text-center small mb-4">Buat akun untuk memulai analisis rantai pasok.</p>
+
+                    <form action="{{ route('register') }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="name" class="form-label text-muted">Nama Lengkap</label>
+                            <input type="text" name="name" class="form-control bg-dark border-secondary text-white" id="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label text-muted">Email</label>
+                            <input type="email" name="email" class="form-control bg-dark border-secondary text-white" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label text-muted">Kata Sandi</label>
+                            <input type="password" name="password" class="form-control bg-dark border-secondary text-white" id="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold mt-2">Daftar</button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <span class="text-secondary small">Sudah punya akun? <a href="{{ route('login') }}" class="text-info text-decoration-none">Masuk</a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
