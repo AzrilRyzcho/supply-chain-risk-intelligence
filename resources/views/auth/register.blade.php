@@ -41,16 +41,16 @@
                     <form action="{{ route('register') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="name" class="form-label text-muted">Nama Lengkap</label>
-                            <input type="text" name="name" class="form-control bg-dark border-secondary text-white" id="name" required>
+                            <label for="name" class="form-label text-light">Nama Lengkap</label>
+                            <input type="text" name="name" class="form-control bg-dark border-secondary text-white" id="name" placeholder="Masukkan nama lengkap Anda" required>
                         </div>
                         <div class="mb-3">
-                            <label for="email" class="form-label text-muted">Email</label>
-                            <input type="email" name="email" class="form-control bg-dark border-secondary text-white" id="email" required>
+                            <label for="email" class="form-label text-light">Alamat Email</label>
+                            <input type="email" name="email" class="form-control bg-dark border-secondary text-white" id="email" placeholder="contoh: nama@domain.com" required>
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label text-muted">Kata Sandi</label>
-                            <input type="password" name="password" class="form-control bg-dark border-secondary text-white" id="password" required>
+                            <label for="password" class="form-label text-light">Kata Sandi</label>
+                            <input type="password" name="password" class="form-control bg-dark border-secondary text-white" id="password" placeholder="Minimal 6 karakter" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold mt-2">Daftar</button>
                     </form>
