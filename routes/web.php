@@ -19,6 +19,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/country', [UserDashboardController::class, 'country'])->name('country');
         Route::get('/compare', [UserDashboardController::class, 'compare'])->name('compare');
         Route::get('/watchlist', [UserDashboardController::class, 'watchlist'])->name('watchlist');
+        Route::get('/weather', [UserDashboardController::class, 'weather'])->name('weather');
+        Route::get('/currency', [UserDashboardController::class, 'currency'])->name('currency');
+        Route::get('/news', [UserDashboardController::class, 'news'])->name('news');
+        Route::get('/ports', [UserDashboardController::class, 'ports'])->name('ports');
+        Route::get('/risk', [UserDashboardController::class, 'risk'])->name('risk');
+        Route::get('/articles', [UserDashboardController::class, 'articles'])->name('articles');
+        Route::get('/settings', [UserDashboardController::class, 'settings'])->name('settings');
     });
 
     // Profile Settings

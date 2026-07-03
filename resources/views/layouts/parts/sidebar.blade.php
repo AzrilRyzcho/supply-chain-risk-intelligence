@@ -1,4 +1,4 @@
-<nav id="sidebar">
+<nav id="sidebar" class="d-flex flex-column">
     <div class="sidebar-header d-flex align-items-center justify-content-center">
         <h4 class="mb-0 text-center fw-bold text-white py-2">
             @if($isAdmin)
@@ -9,7 +9,7 @@
         </h4>
     </div>
 
-    <ul class="list-unstyled components">
+    <ul class="list-unstyled components flex-grow-1">
         @if($isAdmin)
             <!-- Admin Menu -->
             <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -28,37 +28,44 @@
                 <a href="{{ route('user.index') }}" class="text-info"><i class="bi bi-arrow-left-circle me-2"></i>Dasbor User</a>
             </li>
         @else
-            <!-- User Menu -->
+            <!-- User Menu (11 Items) -->
             <li class="{{ request()->routeIs('user.index') ? 'active' : '' }}">
-                <a href="{{ route('user.index') }}"><i class="bi bi-house-door me-2"></i>Dasbor Utama</a>
+                <a href="{{ route('user.index') }}"><i class="bi bi-house-door me-2"></i>Dashboard</a>
             </li>
             <li class="{{ request()->routeIs('user.country') ? 'active' : '' }}">
-                <a href="{{ route('user.country') }}"><i class="bi bi-globe me-2"></i>Dasbor Negara</a>
+                <a href="{{ route('user.country') }}"><i class="bi bi-globe me-2"></i>Countries</a>
             </li>
-            <li class="{{ request()->routeIs('user.watchlist') ? 'active' : '' }}">
-                <a href="{{ route('user.watchlist') }}"><i class="bi bi-star me-2"></i>Daftar Favorit</a>
+            <li class="{{ request()->routeIs('user.weather') ? 'active' : '' }}">
+                <a href="{{ route('user.weather') }}"><i class="bi bi-cloud-sun me-2"></i>Weather</a>
+            </li>
+            <li class="{{ request()->routeIs('user.currency') ? 'active' : '' }}">
+                <a href="{{ route('user.currency') }}"><i class="bi bi-currency-exchange me-2"></i>Currency</a>
+            </li>
+            <li class="{{ request()->routeIs('user.news') ? 'active' : '' }}">
+                <a href="{{ route('user.news') }}"><i class="bi bi-newspaper me-2"></i>News</a>
+            </li>
+            <li class="{{ request()->routeIs('user.ports') ? 'active' : '' }}">
+                <a href="{{ route('user.ports') }}"><i class="bi bi-compass me-2"></i>Ports</a>
+            </li>
+            <li class="{{ request()->routeIs('user.risk') ? 'active' : '' }}">
+                <a href="{{ route('user.risk') }}"><i class="bi bi-shield-check me-2"></i>Risk Analysis</a>
             </li>
             <li class="{{ request()->routeIs('user.compare') ? 'active' : '' }}">
-                <a href="{{ route('user.compare') }}"><i class="bi bi-columns-gap me-2"></i>Bandingkan Negara</a>
+                <a href="{{ route('user.compare') }}"><i class="bi bi-columns-gap me-2"></i>Comparison</a>
             </li>
-            <hr class="mx-3 my-2" style="border-top: 1px solid #475569;">
-            <!-- Dummy menus matching requirements for staging -->
-            <li>
-                <a href="#weather"><i class="bi bi-cloud-sun me-2"></i>Peta Cuaca</a>
+            <li class="{{ request()->routeIs('user.watchlist') ? 'active' : '' }}">
+                <a href="{{ route('user.watchlist') }}"><i class="bi bi-star me-2"></i>Watchlist</a>
             </li>
-            <li>
-                <a href="#currency"><i class="bi bi-currency-exchange me-2"></i>Dasbor Valas</a>
+            <li class="{{ request()->routeIs('user.articles') ? 'active' : '' }}">
+                <a href="{{ route('user.articles') }}"><i class="bi bi-journal-text me-2"></i>Articles</a>
             </li>
-            <li>
-                <a href="#news"><i class="bi bi-newspaper me-2"></i>Intel Berita</a>
-            </li>
-            <li>
-                <a href="#ports"><i class="bi bi-compass me-2"></i>Peta Pelabuhan</a>
+            <li class="{{ request()->routeIs('user.settings') ? 'active' : '' }}">
+                <a href="{{ route('user.settings') }}"><i class="bi bi-gear me-2"></i>Settings</a>
             </li>
         @endif
     </ul>
 
-    <div class="p-3 mt-auto text-center" style="font-size: 0.85em; color: #64748b;">
+    <div class="p-3 text-center" style="font-size: 0.85em; color: #64748b; border-top: 1px solid #1e293b;">
         v1.0.0 &copy; 2026
     </div>
 </nav>

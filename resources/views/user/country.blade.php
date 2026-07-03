@@ -1,45 +1,256 @@
 @extends('layouts.app')
 
-@section('title', 'Dasbor Negara - RiskIntel')
-@section('page_title', 'Dasbor Analisis Negara')
+@section('title', 'Countries - RiskIntel')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-4">
+    <!-- Country Select Header -->
     <div class="card card-custom p-4 bg-white mb-4">
-        <h5 class="fw-bold mb-3">Pilih Negara Mitra Dagang</h5>
-        <div class="row">
+        <h5 class="fw-bold text-slate-800 mb-3">Pilih Negara Mitra Dagang</h5>
+        <form action="{{ route('user.country') }}" method="GET" class="row g-3 align-items-center">
             <div class="col-md-4">
-                <select class="form-select" id="country-select">
+                <select name="code" class="form-select bg-light border-secondary-subtle" id="country-select" onchange="this.form.submit()">
                     <option value="">-- Pilih Negara --</option>
-                    <option value="DE">Jerman</option>
-                    <option value="CN">China</option>
-                    <option value="ID">Indonesia</option>
-                    <option value="AU">Australia</option>
+                    @foreach($countries as $c)
+                        <option value="{{ $c->code }}" {{ $selectedCode == $c->code ? 'selected' : '' }}>
+                            {{ $c->name }} ({{ $c->code }})
+                        </option>
+                    @endforeach
                 </select>
             </div>
             <div class="col-md-2">
-                <button class="btn btn-primary w-100" id="btn-load-country">Tampilkan</button>
+                <button type="submit" class="btn btn-primary w-100 fw-bold">Tampilkan</button>
             </div>
-        </div>
+        </form>
     </div>
 
-    <!-- Placeholder info negara -->
-    <div class="row">
-        <div class="col-md-8 mb-4">
-            <div class="card card-custom p-4 bg-white">
-                <h5 class="fw-bold">Indikator Makro & Cuaca</h5>
-                <p class="text-muted">Pilih negara terlebih dahulu untuk memuat data World Bank, REST Countries, dan Open-Meteo secara real-time.</p>
+    @if($selectedCountry)
+        <div class="row">
+            <!-- Left Panel: Macroeconomy & Weather -->
+            <div class="col-lg-8">
+                <!-- Meta Info & Weather -->
+                <div class="card card-custom p-4 bg-white mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold text-slate-800 mb-0">{{ $selectedCountry->name }}</h4>
+                        <span class="badge bg-secondary fs-6 py-2 px-3">Mata Uang: {{ $selectedCountry->currency_code }}</span>
+                    </div>
+                    <div class="row text-center bg-light rounded p-3 mb-4">
+                        <div class="col-md-4 mb-2 mb-md-0 border-end border-light-subtle">
+                            <span class="text-muted small d-block">Wilayah</span>
+                            <span class="fw-bold text-slate-700 fs-5">{{ $selectedCountry->region }}</span>
+                        </div>
+                        <div class="col-md-4 mb-2 mb-md-0 border-end border-light-subtle">
+                            <span class="text-muted small d-block">Koordinat Tengah</span>
+                            <span class="fw-bold text-slate-700 fs-5">{{ $selectedCountry->latitude }}, {{ $selectedCountry->longitude }}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <span class="text-muted small d-block">Suhu Saat Ini</span>
+                            <span class="fw-bold text-info fs-5">
+                                @if($selectedCountry->weather)
+                                    {{ $selectedCountry->weather->temperature }}°C
+                                @else
+                                    N/A
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+
+                    @if($selectedCountry->weather)
+                        <h6 class="fw-bold text-slate-800 mb-3"><i class="bi bi-cloud-sun me-1"></i>Indikator Cuaca Ekstrem</h6>
+                        <div class="row text-center mb-2">
+                            <div class="col-6 col-md-3">
+                                <div class="p-2 border rounded mb-2">
+                                    <span class="text-muted small d-block">Suhu</span>
+                                    <span class="fw-bold text-slate-800">{{ $selectedCountry->weather->temperature }}°C</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-2 border rounded mb-2">
+                                    <span class="text-muted small d-block">Curah Hujan</span>
+                                    <span class="fw-bold text-slate-800">{{ $selectedCountry->weather->rain }} mm</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-2 border rounded mb-2">
+                                    <span class="text-muted small d-block">Kecepatan Angin</span>
+                                    <span class="fw-bold text-slate-800">{{ $selectedCountry->weather->wind_speed }} km/h</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-2 border rounded mb-2">
+                                    <span class="text-muted small d-block">Risiko Badai</span>
+                                    <span class="fw-bold text-danger">{{ $selectedCountry->weather->storm_risk }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- GDP & Inflation Trends (Chart.js) -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card card-custom p-4 bg-white h-100">
+                            <h5 class="fw-bold text-slate-800 mb-3">Tren PDB (GDP)</h5>
+                            <div style="height: 250px;">
+                                <canvas id="gdpChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card card-custom p-4 bg-white h-100">
+                            <h5 class="fw-bold text-slate-800 mb-3">Tren Inflasi</h5>
+                            <div style="height: 250px;">
+                                <canvas id="inflationChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card card-custom p-4 bg-white">
-                <h5 class="fw-bold">Skor Risiko</h5>
-                <div class="text-center py-5">
-                    <h1 class="display-3 fw-bold text-muted">-</h1>
-                    <span class="badge bg-secondary px-3 py-2">Belum Ditentukan</span>
+
+            <!-- Right Panel: Risk Gauge -->
+            <div class="col-lg-4">
+                <div class="card card-custom p-4 bg-white h-100">
+                    <h5 class="fw-bold text-slate-800 mb-4">Analisis Indeks Risiko</h5>
+
+                    @if($latestRisk)
+                        <div class="text-center mb-4">
+                            <div class="d-inline-block rounded-circle p-4 mb-3 {{ $latestRisk->total_score >= 50 ? 'bg-danger bg-opacity-10 text-danger' : ($latestRisk->total_score >= 25 ? 'bg-warning bg-opacity-10 text-warning' : 'bg-success bg-opacity-10 text-success') }}"
+                                 style="width: 140px; height: 140px; line-height: 92px;">
+                                <span class="fs-1 fw-bold">{{ $latestRisk->total_score }}%</span>
+                            </div>
+                            <h4 class="fw-bold text-slate-800">
+                                @if($latestRisk->total_score >= 50)
+                                    Risiko Tinggi
+                                @elseif($latestRisk->total_score >= 25)
+                                    Risiko Sedang
+                                @else
+                                    Risiko Rendah
+                                @endif
+                            </h4>
+                            <p class="text-muted small">Dihitung pada {{ \Carbon\Carbon::parse($latestRisk->calculated_at)->format('d M Y H:i') }}</p>
+                        </div>
+
+                        <!-- Scores Breakdown -->
+                        <h6 class="fw-bold text-slate-800 mb-3">Rincian Skor Bobot Risiko</h6>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small mb-1 text-slate-700">
+                                <span>Risiko Cuaca</span>
+                                <span>{{ $latestRisk->weather_score }}%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: {{ $latestRisk->weather_score }}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small mb-1 text-slate-700">
+                                <span>Risiko Inflasi</span>
+                                <span>{{ $latestRisk->inflation_score }}%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $latestRisk->inflation_score }}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small mb-1 text-slate-700">
+                                <span>Risiko Depresiasi Kurs</span>
+                                <span>{{ $latestRisk->currency_score }}%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $latestRisk->currency_score }}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between small mb-1 text-slate-700">
+                                <span>Risiko Sentimen Geopolitik</span>
+                                <span>{{ $latestRisk->sentiment_score }}%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $latestRisk->sentiment_score }}%"></div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="text-center py-5">
+                            <h1 class="display-3 fw-bold text-muted">-</h1>
+                            <span class="badge bg-secondary px-3 py-2">Belum Dikalkulasi</span>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
-    </div>
+    @else
+        <div class="card card-custom p-5 bg-white text-center">
+            <div class="text-slate-300 mb-3" style="font-size: 5rem;">
+                <i class="bi bi-globe2"></i>
+            </div>
+            <h4 class="fw-bold text-slate-800">Silakan Pilih Negara Mitra</h4>
+            <p class="text-muted col-md-6 mx-auto">
+                Silakan pilih salah satu negara mitra dagang pada dropdown di atas untuk memantau data ekonomi historis, risiko cuaca ekstrem, dan performa rantai pasok secara detail.
+            </p>
+        </div>
+    @endif
 </div>
 @endsection
+
+@push('scripts')
+@if($selectedCountry)
+<!-- Load Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // GDP Trend Chart
+    const gdpCtx = document.getElementById('gdpChart').getContext('2d');
+    new Chart(gdpCtx, {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($gdpData->pluck('year')->toArray()) !!},
+            datasets: [{
+                label: 'GDP (Miliar USD)',
+                data: {!! json_encode($gdpData->pluck('value')->toArray()) !!},
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                fill: true,
+                tension: 0.3,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { grid: { color: '#f1f5f9' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // Inflation Trend Chart
+    const inflationCtx = document.getElementById('inflationChart').getContext('2d');
+    new Chart(inflationCtx, {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($inflationData->pluck('year')->toArray()) !!},
+            datasets: [{
+                label: 'Inflasi (%)',
+                data: {!! json_encode($inflationData->pluck('rate')->toArray()) !!},
+                backgroundColor: '#f59e0b',
+                borderRadius: 4,
+                barThickness: 20
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { grid: { color: '#f1f5f9' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+</script>
+@endif
+@endpush
