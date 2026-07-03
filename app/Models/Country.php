@@ -8,9 +8,18 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-#[Fillable(['name', 'code', 'currency_code', 'region', 'latitude', 'longitude'])]
+#[Fillable(['name', 'code', 'currency_code', 'region', 'latitude', 'longitude', 'flag', 'subregion', 'languages', 'population', 'area'])]
 class Country extends Model
 {
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'languages' => 'array',
+    ];
+
     /**
      * Get the weather record associated with the country.
      */

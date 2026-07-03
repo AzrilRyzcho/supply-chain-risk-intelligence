@@ -30,24 +30,50 @@
             <div class="col-lg-8">
                 <!-- Meta Info & Weather -->
                 <div class="card card-custom p-4 bg-white mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center mb-3 flex-wrap gap-2">
+                        @if($selectedCountry->flag)
+                            <img src="{{ $selectedCountry->flag }}" alt="Flag" style="height: 28px; border-radius: 4px;" class="me-2 shadow-sm border">
+                        @endif
                         <h4 class="fw-bold text-slate-800 mb-0">{{ $selectedCountry->name }}</h4>
-                        <span class="badge bg-secondary fs-6 py-2 px-3">Mata Uang: {{ $selectedCountry->currency_code }}</span>
+                        <span class="badge bg-secondary fs-6 py-2 px-3 ms-auto">Mata Uang: {{ $selectedCountry->currency_code }}</span>
                     </div>
-                    <div class="row text-center bg-light rounded p-3 mb-4">
-                        <div class="col-md-4 mb-2 mb-md-0 border-end border-light-subtle">
+                    <div class="row row-cols-2 row-cols-md-5 g-3 text-center bg-light rounded p-3 mb-4">
+                        <div class="col border-end border-light-subtle">
                             <span class="text-muted small d-block">Wilayah</span>
-                            <span class="fw-bold text-slate-700 fs-5">{{ $selectedCountry->region }}</span>
+                            <span class="fw-bold text-slate-700 fs-6">{{ $selectedCountry->region }}</span>
+                            @if($selectedCountry->subregion)
+                                <span class="text-muted d-block" style="font-size: 0.72rem; color: #64748b;">{{ $selectedCountry->subregion }}</span>
+                            @endif
                         </div>
-                        <div class="col-md-4 mb-2 mb-md-0 border-end border-light-subtle">
-                            <span class="text-muted small d-block">Koordinat Tengah</span>
-                            <span class="fw-bold text-slate-700 fs-5">{{ $selectedCountry->latitude }}, {{ $selectedCountry->longitude }}</span>
+                        <div class="col border-end border-light-subtle">
+                            <span class="text-muted small d-block">Koordinat</span>
+                            <span class="fw-bold text-slate-700 fs-6 d-block">{{ $selectedCountry->latitude }}, {{ $selectedCountry->longitude }}</span>
                         </div>
-                        <div class="col-md-4">
-                            <span class="text-muted small d-block">Suhu Saat Ini</span>
-                            <span class="fw-bold text-info fs-5">
-                                @if($selectedCountry->weather)
-                                    {{ $selectedCountry->weather->temperature }}°C
+                        <div class="col border-end border-light-subtle">
+                            <span class="text-muted small d-block">Populasi</span>
+                            <span class="fw-bold text-slate-700 fs-6 d-block">
+                                @if($selectedCountry->population)
+                                    {{ $selectedCountry->population >= 1000000 ? number_format($selectedCountry->population / 1000000, 1) . ' Juta' : number_format($selectedCountry->population) }}
+                                @else
+                                    N/A
+                                @endif
+                            </span>
+                        </div>
+                        <div class="col border-end border-light-subtle">
+                            <span class="text-muted small d-block">Luas Wilayah</span>
+                            <span class="fw-bold text-slate-700 fs-6 d-block">
+                                @if($selectedCountry->area)
+                                    {{ number_format($selectedCountry->area) }} km²
+                                @else
+                                    N/A
+                                @endif
+                            </span>
+                        </div>
+                        <div class="col">
+                            <span class="text-muted small d-block">Bahasa</span>
+                            <span class="fw-bold text-slate-700 fs-6 d-block" title="{{ is_array($selectedCountry->languages) ? implode(', ', $selectedCountry->languages) : ($selectedCountry->languages ?? 'N/A') }}">
+                                @if(is_array($selectedCountry->languages) && count($selectedCountry->languages) > 0)
+                                    {{ Str::limit(implode(', ', $selectedCountry->languages), 12) }}
                                 @else
                                     N/A
                                 @endif

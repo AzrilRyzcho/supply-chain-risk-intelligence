@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\WatchlistApiController;
 
 Route::middleware(['auth', 'api.cache'])->prefix('v1')->group(function () {
     Route::get('/countries', [CountryApiController::class, 'index']);
+    Route::get('/countries/{code}', [CountryApiController::class, 'show']);
+    Route::post('/countries/{code}/sync', [CountryApiController::class, 'sync']);
     Route::get('/risk/{code}', [RiskApiController::class, 'show']);
     Route::get('/ports', [PortApiController::class, 'index']);
     Route::get('/news/{code}', [NewsApiController::class, 'show']);

@@ -12,6 +12,7 @@ use App\Models\Gdp;
 use App\Models\News;
 use App\Models\RiskScore;
 use App\Models\Article;
+use App\Services\CountryService;
 use Illuminate\Http\Request;
 
 class UserDashboardController extends Controller
@@ -44,7 +45,7 @@ class UserDashboardController extends Controller
     /**
      * Display indicators and stats for a specific selected country.
      */
-    public function country(Request $request)
+    public function country(Request $request, CountryService $countryService)
     {
         $countries = Country::all();
         $selectedCode = $request->get('code');
@@ -54,8 +55,9 @@ class UserDashboardController extends Controller
         $latestRisk = null;
 
         if ($selectedCode) {
-            $selectedCountry = Country::with(['weather'])->where('code', $selectedCode)->first();
+            $selectedCountry = $countryService->getCountryDetails($selectedCode);
             if ($selectedCountry) {
+                $selectedCountry->load('weather');
                 $gdpData = Gdp::where('country_id', $selectedCountry->id)->orderBy('year', 'asc')->get();
                 $inflationData = Inflation::where('country_id', $selectedCountry->id)->orderBy('year', 'asc')->get();
                 $latestRisk = RiskScore::where('country_id', $selectedCountry->id)->orderBy('calculated_at', 'desc')->first();
