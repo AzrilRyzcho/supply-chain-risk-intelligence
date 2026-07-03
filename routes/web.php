@@ -2,34 +2,29 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\PortController;
 use App\Http\Controllers\Admin\UserController;
 
-// Guest / Public Routes
+// Guest Landing Page
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register']);
-});
-
-// Authenticated User Routes
+// Authenticated User Routes (Dashboard & Tools)
 Route::middleware('auth')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    
-    // User Dashboards & Tools
     Route::prefix('dashboard')->name('user.')->group(function () {
-        Route::get('/', [UserDashboardController::class, 'index'])->name('index');
+        Route::get('/main', [UserDashboardController::class, 'index'])->name('index');
         Route::get('/country', [UserDashboardController::class, 'country'])->name('country');
         Route::get('/compare', [UserDashboardController::class, 'compare'])->name('compare');
         Route::get('/watchlist', [UserDashboardController::class, 'watchlist'])->name('watchlist');
     });
+
+    // Profile Settings
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 // Admin Panel Routes (Protected by auth and custom admin middleware)
@@ -39,3 +34,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('ports', PortController::class);
     Route::resource('users', UserController::class)->only(['index', 'destroy']);
 });
+
+// Fallback Dashboard Route for compatibility (resolves route('dashboard'))
+Route::middleware('auth')->get('/dashboard', function () {
+    if (auth()->user()->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+    return redirect()->route('user.index');
+})->name('dashboard');
+
+require __DIR__.'/auth.php';

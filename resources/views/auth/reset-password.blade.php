@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar - RiskIntel</title>
+    <title>Atur Ulang Kata Sandi - RiskIntel</title>
     
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,7 +22,7 @@
             align-items: center;
             justify-content: center;
         }
-        .register-card {
+        .auth-card {
             background: #1e293b;
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
@@ -35,26 +35,21 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-5">
-                <div class="card register-card p-4 shadow-lg">
-                    <h3 class="fw-bold text-center text-white mb-2">Daftar Akun Baru</h3>
-                    <p class="text-secondary text-center small mb-4">Buat akun untuk memulai analisis rantai pasok.</p>
+                <div class="card auth-card p-4 shadow-lg">
+                    <h3 class="fw-bold text-center text-white mb-2">Atur Ulang Kata Sandi</h3>
+                    <p class="text-secondary small text-center mb-4">
+                        Masukkan kata sandi baru Anda di bawah ini.
+                    </p>
 
-                    <form action="{{ route('register') }}" method="POST">
+                    <form action="{{ route('password.store') }}" method="POST">
                         @csrf
                         
-                        <div class="mb-3">
-                            <label for="name" class="form-label text-light">Nama Lengkap</label>
-                            <input type="text" name="name" class="form-control bg-dark border-secondary text-white @error('name') is-invalid @enderror" id="name" placeholder="Masukkan nama lengkap Anda" value="{{ old('name') }}" required autofocus autocomplete="name">
-                            @error('name')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
+                        <!-- Password Reset Token -->
+                        <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
                         <div class="mb-3">
                             <label for="email" class="form-label text-light">Alamat Email</label>
-                            <input type="email" name="email" class="form-control bg-dark border-secondary text-white @error('email') is-invalid @enderror" id="email" placeholder="contoh: nama@domain.com" value="{{ old('email') }}" required autocomplete="email">
+                            <input type="email" name="email" class="form-control bg-dark border-secondary text-white @error('email') is-invalid @enderror" id="email" value="{{ old('email', $request->email) }}" required autocomplete="email">
                             @error('email')
                                 <div class="invalid-feedback">
                                     {{ $message }}
@@ -63,7 +58,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label text-light">Kata Sandi</label>
+                            <label for="password" class="form-label text-light">Kata Sandi Baru</label>
                             <input type="password" name="password" class="form-control bg-dark border-secondary text-white @error('password') is-invalid @enderror" id="password" placeholder="Minimal 6 karakter" required autocomplete="new-password">
                             @error('password')
                                 <div class="invalid-feedback">
@@ -72,12 +67,20 @@
                             @enderror
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold mt-2">Daftar</button>
-                    </form>
+                        <div class="mb-3">
+                            <label for="password_confirmation" class="form-label text-light">Konfirmasi Kata Sandi Baru</label>
+                            <input type="password" name="password_confirmation" class="form-control bg-dark border-secondary text-white @error('password_confirmation') is-invalid @enderror" id="password_confirmation" placeholder="Ulangi kata sandi baru" required autocomplete="new-password">
+                            @error('password_confirmation')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
 
-                    <div class="text-center mt-4">
-                        <span class="text-secondary small">Sudah punya akun? <a href="{{ route('login') }}" class="text-info text-decoration-none">Masuk</a></span>
-                    </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold mt-2">
+                            Perbarui Kata Sandi
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
