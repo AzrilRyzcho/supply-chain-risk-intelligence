@@ -15,21 +15,21 @@
         <div class="col-md-4 mb-3">
             <div class="card card-custom p-3 bg-white border border-light-subtle shadow-sm h-100">
                 <span class="text-muted small fw-bold text-uppercase">Berita Positif</span>
-                <h2 class="fw-bold mt-2 mb-0 text-success">{{ $news->where('sentiment', 'positive')->count() }}</h2>
+                <h2 class="fw-bold mt-2 mb-0 text-success">{{ $positiveCount }}</h2>
                 <span class="text-secondary small mt-1">Mengindikasikan kelancaran jalur pasok</span>
             </div>
         </div>
         <div class="col-md-4 mb-3">
             <div class="card card-custom p-3 bg-white border border-light-subtle shadow-sm h-100">
                 <span class="text-muted small fw-bold text-uppercase">Berita Netral</span>
-                <h2 class="fw-bold mt-2 mb-0 text-secondary">{{ $news->where('sentiment', 'neutral')->count() }}</h2>
+                <h2 class="fw-bold mt-2 mb-0 text-secondary">{{ $neutralCount }}</h2>
                 <span class="text-secondary small mt-1">Informasi logistik harian rutin</span>
             </div>
         </div>
         <div class="col-md-4 mb-3">
             <div class="card card-custom p-3 bg-white border border-light-subtle shadow-sm h-100">
                 <span class="text-muted small fw-bold text-uppercase">Berita Negatif</span>
-                <h2 class="fw-bold mt-2 mb-0 text-danger">{{ $news->where('sentiment', 'negative')->count() }}</h2>
+                <h2 class="fw-bold mt-2 mb-0 text-danger">{{ $negativeCount }}</h2>
                 <span class="text-secondary small mt-1">Tanda hambatan pasokan & perang dagang</span>
             </div>
         </div>
@@ -37,7 +37,18 @@
 
     <!-- News List -->
     <div class="card card-custom p-4 bg-white border border-light-subtle shadow-sm">
-        <h5 class="fw-bold text-slate-800 mb-4">Umpan Berita Logistik Global</h5>
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2 border-bottom pb-3">
+            <h5 class="fw-bold text-slate-800 mb-0">Umpan Berita Logistik Global</h5>
+            <form action="{{ route('user.news') }}" method="GET" class="d-flex gap-2 align-items-center" style="max-width: 400px; width: 100%;">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control form-control-sm border-secondary-subtle" placeholder="Cari berita..." value="{{ $search }}">
+                    @if($search)
+                        <a href="{{ route('user.news') }}" class="btn btn-outline-secondary btn-sm" title="Hapus pencarian"><i class="bi bi-x-lg"></i></a>
+                    @endif
+                    <button class="btn btn-primary btn-sm px-3" type="submit"><i class="bi bi-search"></i></button>
+                </div>
+            </form>
+        </div>
         
         <div class="d-flex flex-column gap-3">
             @forelse($news as $item)
@@ -94,6 +105,12 @@
                 <div class="text-center text-muted py-5">Umpan berita belum terisi data.</div>
             @endforelse
         </div>
+
+        @if($news->hasPages())
+            <div class="mt-4 d-flex justify-content-center">
+                {{ $news->appends(request()->query())->links() }}
+            </div>
+        @endif
     </div>
 </div>
 @endsection

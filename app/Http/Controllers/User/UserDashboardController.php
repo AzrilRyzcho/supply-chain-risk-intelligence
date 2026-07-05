@@ -16,6 +16,7 @@ use App\Models\RiskScore;
 use App\Models\Article;
 use App\Services\CountryService;
 use App\Services\CurrencyService;
+use App\Services\NewsService;
 use Illuminate\Http\Request;
 
 class UserDashboardController extends Controller
@@ -113,10 +114,18 @@ class UserDashboardController extends Controller
     /**
      * Display news feeds.
      */
-    public function news()
+    public function news(Request $request, NewsService $newsService)
     {
-        $news = News::with('country')->orderBy('published_at', 'desc')->get();
-        return view('user.news', compact('news'));
+        $search = $request->get('q', '');
+        $page = (int) $request->get('page', 1);
+
+        $news = $newsService->getNews($search, $page, 10);
+
+        $positiveCount = News::where('sentiment', 'positive')->count();
+        $neutralCount = News::where('sentiment', 'neutral')->count();
+        $negativeCount = News::where('sentiment', 'negative')->count();
+
+        return view('user.news', compact('news', 'search', 'positiveCount', 'neutralCount', 'negativeCount'));
     }
 
     /**
