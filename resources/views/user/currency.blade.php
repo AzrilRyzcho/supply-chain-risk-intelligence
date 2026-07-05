@@ -89,6 +89,46 @@
             </div>
         </div>
     </div>
+
+    <!-- Historical Trend Chart Row -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card card-custom p-4 bg-white border border-light-subtle shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h5 class="fw-bold text-slate-800 mb-0">
+                        <i class="bi bi-graph-up text-primary me-2"></i>Tren Nilai Tukar Historis (30 Hari Terakhir)
+                    </h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <select id="trend-base" class="form-select form-select-sm" style="width: 100px;" onchange="loadTrendChart()">
+                            <option value="USD" selected>USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="IDR">IDR</option>
+                            <option value="CNY">CNY</option>
+                            <option value="AUD">AUD</option>
+                        </select>
+                        <span class="text-muted small">ke</span>
+                        <select id="trend-target" class="form-select form-select-sm" style="width: 100px;" onchange="loadTrendChart()">
+                            <option value="IDR" selected>IDR</option>
+                            <option value="EUR">EUR</option>
+                            <option value="CNY">CNY</option>
+                            <option value="AUD">AUD</option>
+                            <option value="USD">USD</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="height: 300px; position: relative;">
+                    <!-- Loading Overlay -->
+                    <div id="trend-loading" class="position-absolute top-50 start-50 translate-middle text-center d-none" style="z-index: 10;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0">Memuat data tren historis...</p>
+                    </div>
+                    <canvas id="currencyTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -105,8 +145,79 @@
         document.getElementById('conversion-result').innerText = `${amount.toLocaleString()} USD = ${result.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${code}`;
     }
 
+    let trendChart = null;
+
+    function loadTrendChart() {
+        const base = document.getElementById('trend-base').value;
+        const target = document.getElementById('trend-target').value;
+        const loadingEl = document.getElementById('trend-loading');
+
+        if (base === target) {
+            alert('Mata uang asal dan target tidak boleh sama.');
+            return;
+        }
+
+        loadingEl.classList.remove('d-none');
+
+        fetch(`/api/v1/currency/${target}?base=${base}`)
+            .then(response => response.json())
+            .then(res => {
+                loadingEl.classList.add('d-none');
+                if (res.status === 'success' && res.trend) {
+                    const labels = res.trend.labels;
+                    const data = res.trend.values;
+
+                    if (trendChart) {
+                        trendChart.destroy();
+                    }
+
+                    const ctx = document.getElementById('currencyTrendChart').getContext('2d');
+                    trendChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: `${base} ke ${target}`,
+                                data: data,
+                                borderColor: '#2563eb',
+                                backgroundColor: 'rgba(37, 99, 235, 0.05)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.3,
+                                pointRadius: 2,
+                                pointHoverRadius: 5
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: true, position: 'top' }
+                            },
+                            scales: {
+                                y: {
+                                    grid: { color: '#f1f5f9' },
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value.toLocaleString();
+                                        }
+                                    }
+                                },
+                                x: { grid: { display: false } }
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(err => {
+                loadingEl.classList.add('d-none');
+                console.error('Error loading trend chart:', err);
+            });
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         convertCurrency();
+        loadTrendChart();
 
         // Currency Strength Chart
         const currencies = {!! json_encode($currencies) !!};

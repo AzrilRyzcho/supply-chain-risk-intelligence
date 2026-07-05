@@ -15,6 +15,7 @@ use App\Models\News;
 use App\Models\RiskScore;
 use App\Models\Article;
 use App\Services\CountryService;
+use App\Services\CurrencyService;
 use Illuminate\Http\Request;
 
 class UserDashboardController extends Controller
@@ -94,8 +95,17 @@ class UserDashboardController extends Controller
     /**
      * Display exchange rates trends.
      */
-    public function currency()
+    public function currency(CurrencyService $currencyService)
     {
+        try {
+            $oldestCurrency = Currency::orderBy('fetched_at', 'asc')->first();
+            if (!$oldestCurrency || !$oldestCurrency->fetched_at || \Carbon\Carbon::parse($oldestCurrency->fetched_at)->isBefore(now()->subHour())) {
+                $currencyService->syncRatesToDatabase();
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning("Failed to sync currency rates on dashboard load: " . $e->getMessage());
+        }
+
         $currencies = Currency::all();
         return view('user.currency', compact('currencies'));
     }
