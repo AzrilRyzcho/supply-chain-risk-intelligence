@@ -17,6 +17,7 @@ use App\Models\Article;
 use App\Services\CountryService;
 use App\Services\CurrencyService;
 use App\Services\NewsService;
+use App\Services\RiskScoringService;
 use Illuminate\Http\Request;
 
 class UserDashboardController extends Controller
@@ -26,6 +27,8 @@ class UserDashboardController extends Controller
      */
     public function index()
     {
+        $this->syncStaleRiskScores();
+
         $totalCountries = Country::count();
         $totalPorts = Port::count();
         $watchlistCount = auth()->user()->watchedCountries()->count();
@@ -156,6 +159,8 @@ class UserDashboardController extends Controller
      */
     public function risk()
     {
+        $this->syncStaleRiskScores();
+
         $riskScores = RiskScore::with('country')->orderBy('calculated_at', 'desc')->get();
         return view('user.risk', compact('riskScores'));
     }
@@ -207,5 +212,20 @@ class UserDashboardController extends Controller
     public function settings()
     {
         return view('user.settings');
+    }
+
+    /**
+     * Helper to automatically check and calculate stale risk scores.
+     */
+    private function syncStaleRiskScores()
+    {
+        try {
+            $oldestRisk = RiskScore::orderBy('calculated_at', 'asc')->first();
+            if (!$oldestRisk || !$oldestRisk->calculated_at || \Carbon\Carbon::parse($oldestRisk->calculated_at)->isBefore(now()->subHour())) {
+                app(RiskScoringService::class)->calculateAllCountries();
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning("Failed to auto-update risk scores: " . $e->getMessage());
+        }
     }
 }

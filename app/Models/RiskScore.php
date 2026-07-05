@@ -18,4 +18,17 @@ class RiskScore extends Model
     {
         return $this->belongsTo(Country::class);
     }
+
+    /**
+     * Get the risk category label (Low, Medium, High).
+     */
+    public function getCategoryAttribute(): string
+    {
+        if ($this->total_score >= 50) {
+            return 'High';
+        } elseif ($this->total_score >= 25) {
+            return 'Medium';
+        }
+        return 'Low';
+    }
 }
