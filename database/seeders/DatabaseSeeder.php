@@ -202,11 +202,67 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Port::create([
+            'name' => 'Port of Bremen',
+            'code' => 'DEBRE',
+            'country_id' => $germany->id,
+            'latitude' => 53.0793,
+            'longitude' => 8.8017,
+        ]);
+
+        Port::create([
+            'name' => 'Port of Wilhelmshaven',
+            'code' => 'DEWVN',
+            'country_id' => $germany->id,
+            'latitude' => 53.5167,
+            'longitude' => 8.1333,
+        ]);
+
+        Port::create([
+            'name' => 'Port of Rostock',
+            'code' => 'DERSK',
+            'country_id' => $germany->id,
+            'latitude' => 54.0833,
+            'longitude' => 12.1333,
+        ]);
+
+        Port::create([
             'name' => 'Tanjung Priok',
             'code' => 'IDTPP',
             'country_id' => $indonesia->id,
             'latitude' => -6.1030,
             'longitude' => 106.8790,
+        ]);
+
+        Port::create([
+            'name' => 'Tanjung Perak',
+            'code' => 'IDTPE',
+            'country_id' => $indonesia->id,
+            'latitude' => -7.2053,
+            'longitude' => 112.7264,
+        ]);
+
+        Port::create([
+            'name' => 'Port of Belawan',
+            'code' => 'IDBLW',
+            'country_id' => $indonesia->id,
+            'latitude' => 3.7833,
+            'longitude' => 98.6833,
+        ]);
+
+        Port::create([
+            'name' => 'Port of Makassar',
+            'code' => 'IDMAK',
+            'country_id' => $indonesia->id,
+            'latitude' => -5.1167,
+            'longitude' => 119.4167,
+        ]);
+
+        Port::create([
+            'name' => 'Tanjung Emas',
+            'code' => 'IDTEM',
+            'country_id' => $indonesia->id,
+            'latitude' => -6.9500,
+            'longitude' => 110.4333,
         ]);
 
         Port::create([
@@ -218,11 +274,75 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Port::create([
+            'name' => 'Port of Shenzhen',
+            'code' => 'CNSZX',
+            'country_id' => $china->id,
+            'latitude' => 22.5083,
+            'longitude' => 113.8833,
+        ]);
+
+        Port::create([
+            'name' => 'Port of Ningbo-Zhoushan',
+            'code' => 'CNNGB',
+            'country_id' => $china->id,
+            'latitude' => 29.8667,
+            'longitude' => 121.5500,
+        ]);
+
+        Port::create([
+            'name' => 'Port of Guangzhou',
+            'code' => 'CNCAN',
+            'country_id' => $china->id,
+            'latitude' => 23.1167,
+            'longitude' => 113.2500,
+        ]);
+
+        Port::create([
+            'name' => 'Port of Qingdao',
+            'code' => 'CNTAO',
+            'country_id' => $china->id,
+            'latitude' => 36.0667,
+            'longitude' => 120.3000,
+        ]);
+
+        Port::create([
             'name' => 'Port of Sydney',
             'code' => 'AUSYD',
             'country_id' => $australia->id,
             'latitude' => -33.8688,
             'longitude' => 151.2093,
+        ]);
+
+        Port::create([
+            'name' => 'Port of Melbourne',
+            'code' => 'AUMEL',
+            'country_id' => $australia->id,
+            'latitude' => -37.8136,
+            'longitude' => 144.9631,
+        ]);
+
+        Port::create([
+            'name' => 'Port of Brisbane',
+            'code' => 'AUBNE',
+            'country_id' => $australia->id,
+            'latitude' => -27.4698,
+            'longitude' => 153.0251,
+        ]);
+
+        Port::create([
+            'name' => 'Port of Fremantle',
+            'code' => 'AUFRE',
+            'country_id' => $australia->id,
+            'latitude' => -32.0569,
+            'longitude' => 115.7439,
+        ]);
+
+        Port::create([
+            'name' => 'Port of Adelaide',
+            'code' => 'AUADL',
+            'country_id' => $australia->id,
+            'latitude' => -34.8422,
+            'longitude' => 138.5028,
         ]);
 
         // 8. Seed News & Sentiments

@@ -134,7 +134,8 @@ class UserDashboardController extends Controller
     public function ports()
     {
         $ports = Port::with('country')->get();
-        return view('user.ports', compact('ports'));
+        $countries = Country::orderBy('name', 'asc')->get();
+        return view('user.ports', compact('ports', 'countries'));
     }
 
     /**
