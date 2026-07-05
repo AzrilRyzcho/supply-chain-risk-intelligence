@@ -9,10 +9,16 @@ use Illuminate\Support\Facades\Log;
 
 class CountryService
 {
+    protected WorldBankService $worldBankService;
+
+    public function __construct(WorldBankService $worldBankService)
+    {
+        $this->worldBankService = $worldBankService;
+    }
     /**
      * Fetch country details from REST Countries API mirror (countries.dev) and sync to local database.
      */
-    public function syncCountry(string $code): ?Country
+    public function syncCountry(string $code, bool $force = false): ?Country
     {
         $code = strtoupper($code);
         
@@ -95,6 +101,13 @@ class CountryService
             $country->area = $area;
             
             $country->save();
+
+            // Sync World Bank macro indicators
+            try {
+                $this->worldBankService->syncCountryData($country, $force);
+            } catch (\Exception $e) {
+                Log::warning("World Bank API Sync failed for code [{$code}] during country sync: " . $e->getMessage());
+            }
             
             return $country;
             

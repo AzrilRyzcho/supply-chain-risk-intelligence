@@ -34,6 +34,10 @@ class CountryApiController extends Controller
                 ], 404);
             }
             
+            if ($country) {
+                $country->load(['weather', 'gdps', 'inflations', 'exports', 'imports']);
+            }
+            
             return response()->json([
                 'status' => 'success',
                 'data' => $country
@@ -56,7 +60,11 @@ class CountryApiController extends Controller
     public function sync(string $code, CountryService $countryService)
     {
         try {
-            $country = $countryService->syncCountry($code);
+            $country = $countryService->syncCountry($code, true);
+            
+            if ($country) {
+                $country->load(['weather', 'gdps', 'inflations', 'exports', 'imports']);
+            }
             
             return response()->json([
                 'status' => 'success',

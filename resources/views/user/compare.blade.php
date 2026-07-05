@@ -72,15 +72,31 @@
                                 <td class="fw-bold text-danger">{{ $country1->weather->storm_risk ?? 'N/A' }}%</td>
                             </tr>
                             <tr>
-                                <td class="text-muted">PDB / GDP (2025)</td>
+                                <td class="text-muted">PDB / GDP (Terbaru)</td>
                                 <td class="fw-bold text-slate-800">
-                                    ${{ $country1->gdps->where('year', 2025)->first()->value ?? 'N/A' }} Miliar
+                                    @php $latestGdp1 = $country1->gdps->sortByDesc('year')->first(); @endphp
+                                    {{ $latestGdp1 ? '$' . number_format($latestGdp1->value, 1) . ' Miliar (' . $latestGdp1->year . ')' : 'N/A' }}
                                 </td>
                             </tr>
                             <tr>
-                                <td class="text-muted">Laju Inflasi (2025)</td>
+                                <td class="text-muted">Laju Inflasi (Terbaru)</td>
                                 <td class="fw-bold text-slate-800">
-                                    {{ $country1->inflations->where('year', 2025)->first()->rate ?? 'N/A' }}%
+                                    @php $latestInf1 = $country1->inflations->sortByDesc('year')->first(); @endphp
+                                    {{ $latestInf1 ? number_format($latestInf1->rate, 2) . '% (' . $latestInf1->year . ')' : 'N/A' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Ekspor (Terbaru)</td>
+                                <td class="fw-bold text-slate-800">
+                                    @php $latestExp1 = $country1->exports->sortByDesc('year')->first(); @endphp
+                                    {{ $latestExp1 ? '$' . number_format($latestExp1->value, 1) . ' Miliar (' . $latestExp1->year . ')' : 'N/A' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Impor (Terbaru)</td>
+                                <td class="fw-bold text-slate-800">
+                                    @php $latestImp1 = $country1->imports->sortByDesc('year')->first(); @endphp
+                                    {{ $latestImp1 ? '$' . number_format($latestImp1->value, 1) . ' Miliar (' . $latestImp1->year . ')' : 'N/A' }}
                                 </td>
                             </tr>
                             <tr>
@@ -136,15 +152,31 @@
                                 <td class="fw-bold text-danger">{{ $country2->weather->storm_risk ?? 'N/A' }}%</td>
                             </tr>
                             <tr>
-                                <td class="text-muted">PDB / GDP (2025)</td>
+                                <td class="text-muted">PDB / GDP (Terbaru)</td>
                                 <td class="fw-bold text-slate-800">
-                                    ${{ $country2->gdps->where('year', 2025)->first()->value ?? 'N/A' }} Miliar
+                                    @php $latestGdp2 = $country2->gdps->sortByDesc('year')->first(); @endphp
+                                    {{ $latestGdp2 ? '$' . number_format($latestGdp2->value, 1) . ' Miliar (' . $latestGdp2->year . ')' : 'N/A' }}
                                 </td>
                             </tr>
                             <tr>
-                                <td class="text-muted">Laju Inflasi (2025)</td>
+                                <td class="text-muted">Laju Inflasi (Terbaru)</td>
                                 <td class="fw-bold text-slate-800">
-                                    {{ $country2->inflations->where('year', 2025)->first()->rate ?? 'N/A' }}%
+                                    @php $latestInf2 = $country2->inflations->sortByDesc('year')->first(); @endphp
+                                    {{ $latestInf2 ? number_format($latestInf2->rate, 2) . '% (' . $latestInf2->year . ')' : 'N/A' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Ekspor (Terbaru)</td>
+                                <td class="fw-bold text-slate-800">
+                                    @php $latestExp2 = $country2->exports->sortByDesc('year')->first(); @endphp
+                                    {{ $latestExp2 ? '$' . number_format($latestExp2->value, 1) . ' Miliar (' . $latestExp2->year . ')' : 'N/A' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Impor (Terbaru)</td>
+                                <td class="fw-bold text-slate-800">
+                                    @php $latestImp2 = $country2->imports->sortByDesc('year')->first(); @endphp
+                                    {{ $latestImp2 ? '$' . number_format($latestImp2->value, 1) . ' Miliar (' . $latestImp2->year . ')' : 'N/A' }}
                                 </td>
                             </tr>
                             <tr>

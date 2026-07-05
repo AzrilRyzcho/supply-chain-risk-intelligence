@@ -9,6 +9,8 @@ use App\Models\Weather;
 use App\Models\Currency;
 use App\Models\Inflation;
 use App\Models\Gdp;
+use App\Models\Export;
+use App\Models\Import;
 use App\Models\News;
 use App\Models\RiskScore;
 use App\Models\Article;
@@ -52,6 +54,8 @@ class UserDashboardController extends Controller
         $selectedCountry = null;
         $gdpData = collect();
         $inflationData = collect();
+        $exportData = collect();
+        $importData = collect();
         $latestRisk = null;
 
         if ($selectedCode) {
@@ -60,6 +64,8 @@ class UserDashboardController extends Controller
                 $selectedCountry->load('weather');
                 $gdpData = Gdp::where('country_id', $selectedCountry->id)->orderBy('year', 'asc')->get();
                 $inflationData = Inflation::where('country_id', $selectedCountry->id)->orderBy('year', 'asc')->get();
+                $exportData = Export::where('country_id', $selectedCountry->id)->orderBy('year', 'asc')->get();
+                $importData = Import::where('country_id', $selectedCountry->id)->orderBy('year', 'asc')->get();
                 $latestRisk = RiskScore::where('country_id', $selectedCountry->id)->orderBy('calculated_at', 'desc')->first();
             }
         }
@@ -70,6 +76,8 @@ class UserDashboardController extends Controller
             'selectedCode',
             'gdpData',
             'inflationData',
+            'exportData',
+            'importData',
             'latestRisk'
         ));
     }
@@ -132,11 +140,11 @@ class UserDashboardController extends Controller
         $country2 = null;
 
         if ($code1) {
-            $country1 = Country::with(['weather', 'gdps', 'inflations', 'riskScores'])->where('code', $code1)->first();
+            $country1 = Country::with(['weather', 'gdps', 'inflations', 'exports', 'imports', 'riskScores'])->where('code', $code1)->first();
         }
 
         if ($code2) {
-            $country2 = Country::with(['weather', 'gdps', 'inflations', 'riskScores'])->where('code', $code2)->first();
+            $country2 = Country::with(['weather', 'gdps', 'inflations', 'exports', 'imports', 'riskScores'])->where('code', $code2)->first();
         }
 
         return view('user.compare', compact('countries', 'country1', 'country2', 'code1', 'code2'));

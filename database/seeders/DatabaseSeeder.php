@@ -8,6 +8,8 @@ use App\Models\Weather;
 use App\Models\Currency;
 use App\Models\Inflation;
 use App\Models\Gdp;
+use App\Models\Export;
+use App\Models\Import;
 use App\Models\News;
 use App\Models\Port;
 use App\Models\RiskScore;
@@ -147,6 +149,42 @@ class DatabaseSeeder extends Seeder
         foreach ($gdpData as $countryId => $years) {
             foreach ($years as $year => $value) {
                 Gdp::create([
+                    'country_id' => $countryId,
+                    'year' => $year,
+                    'value' => $value,
+                ]);
+            }
+        }
+
+        // Seed Export Trends (5 Years: 2021-2025) in Billions USD
+        $exportData = [
+            $germany->id => [2021 => 1600.0, 2022 => 1650.0, 2023 => 1700.0, 2024 => 1750.0, 2025 => 1800.0],
+            $indonesia->id => [2021 => 230.0, 2022 => 290.0, 2023 => 260.0, 2024 => 270.0, 2025 => 280.0],
+            $china->id => [2021 => 3300.0, 2022 => 3600.0, 2023 => 3400.0, 2024 => 3500.0, 2025 => 3600.0],
+            $australia->id => [2021 => 340.0, 2022 => 410.0, 2023 => 370.0, 2024 => 390.0, 2025 => 410.0],
+        ];
+
+        foreach ($exportData as $countryId => $years) {
+            foreach ($years as $year => $value) {
+                Export::create([
+                    'country_id' => $countryId,
+                    'year' => $year,
+                    'value' => $value,
+                ]);
+            }
+        }
+
+        // Seed Import Trends (5 Years: 2021-2025) in Billions USD
+        $importData = [
+            $germany->id => [2021 => 1400.0, 2022 => 1450.0, 2023 => 1500.0, 2024 => 1550.0, 2025 => 1600.0],
+            $indonesia->id => [2021 => 190.0, 2022 => 240.0, 2023 => 220.0, 2024 => 230.0, 2025 => 240.0],
+            $china->id => [2021 => 2700.0, 2022 => 2800.0, 2023 => 2600.0, 2024 => 2700.0, 2025 => 2800.0],
+            $australia->id => [2021 => 290.0, 2022 => 310.0, 2023 => 310.0, 2024 => 330.0, 2025 => 350.0],
+        ];
+
+        foreach ($importData as $countryId => $years) {
+            foreach ($years as $year => $value) {
+                Import::create([
                     'country_id' => $countryId,
                     'year' => $year,
                     'value' => $value,

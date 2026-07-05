@@ -45,6 +45,22 @@ class Country extends Model
     }
 
     /**
+     * Get the export records for the country.
+     */
+    public function exports(): HasMany
+    {
+        return $this->hasMany(Export::class);
+    }
+
+    /**
+     * Get the import records for the country.
+     */
+    public function imports(): HasMany
+    {
+        return $this->hasMany(Import::class);
+    }
+
+    /**
      * Get the news articles for the country.
      */
     public function news(): HasMany

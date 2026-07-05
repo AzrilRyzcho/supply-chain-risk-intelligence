@@ -131,6 +131,26 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Export & Import Trends (Chart.js) -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card card-custom p-4 bg-white h-100">
+                            <h5 class="fw-bold text-slate-800 mb-3">Tren Ekspor</h5>
+                            <div style="height: 250px;">
+                                <canvas id="exportChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card card-custom p-4 bg-white h-100">
+                            <h5 class="fw-bold text-slate-800 mb-3">Tren Impor</h5>
+                            <div style="height: 250px;">
+                                <canvas id="importChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Right Panel: Risk Gauge -->
@@ -263,6 +283,64 @@
                 backgroundColor: '#f59e0b',
                 borderRadius: 4,
                 barThickness: 20
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { grid: { color: '#f1f5f9' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // Export Trend Chart
+    const exportCtx = document.getElementById('exportChart').getContext('2d');
+    new Chart(exportCtx, {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($exportData->pluck('year')->toArray()) !!},
+            datasets: [{
+                label: 'Ekspor (Miliar USD)',
+                data: {!! json_encode($exportData->pluck('value')->toArray()) !!},
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                fill: true,
+                tension: 0.3,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { grid: { color: '#f1f5f9' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // Import Trend Chart
+    const importCtx = document.getElementById('importChart').getContext('2d');
+    new Chart(importCtx, {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($importData->pluck('year')->toArray()) !!},
+            datasets: [{
+                label: 'Impor (Miliar USD)',
+                data: {!! json_encode($importData->pluck('value')->toArray()) !!},
+                borderColor: '#ef4444',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                fill: true,
+                tension: 0.3,
+                borderWidth: 2
             }]
         },
         options: {
