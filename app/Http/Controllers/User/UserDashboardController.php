@@ -31,10 +31,17 @@ class UserDashboardController extends Controller
         $watchlistCount = auth()->user()->watchedCountries()->count();
         $recentArticles = Article::with('user')->orderBy('published_at', 'desc')->take(3)->get();
         
-        // Fetch top high-risk countries based on latest calculations
+        $ports = Port::with('country')->get();
+        $countries = Country::all();
+        
+        // Latest GDP and Inflation per country (grouped by country_id)
+        $gdps = Gdp::orderBy('year', 'desc')->get()->groupBy('country_id');
+        $inflations = Inflation::orderBy('year', 'desc')->get()->groupBy('country_id');
+        $weathers = Weather::with('country')->get();
+        $currencies = Currency::all();
+        
         $highRiskCountries = RiskScore::with('country')
             ->orderBy('total_score', 'desc')
-            ->take(4)
             ->get();
 
         return view('user.dashboard', compact(
@@ -42,7 +49,13 @@ class UserDashboardController extends Controller
             'totalPorts',
             'watchlistCount',
             'recentArticles',
-            'highRiskCountries'
+            'highRiskCountries',
+            'ports',
+            'countries',
+            'gdps',
+            'inflations',
+            'weathers',
+            'currencies'
         ));
     }
 
