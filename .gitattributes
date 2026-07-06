@@ -9,3 +9,8 @@
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
+
+# Force GitHub Linguist to detect CSS in public/css/
+public/css/*.css linguist-vendored=false
+public/css/*.css linguist-detectable=true
+
