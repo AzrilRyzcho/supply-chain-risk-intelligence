@@ -36,32 +36,44 @@ class UserDashboardController extends Controller
             return Port::count();
         });
         $watchlistCount = auth()->user()->watchedCountries()->count();
-        $recentArticles = cache()->remember('dashboard.recent_articles', 600, function() {
-            return Article::with('user')->orderBy('published_at', 'desc')->take(3)->get();
-        });
         
-        $ports = cache()->remember('dashboard.ports', 600, function() {
-            return Port::with('country')->get();
+        $recentArticlesJson = cache()->remember('dashboard.recent_articles', 600, function() {
+            return Article::with('user')->orderBy('published_at', 'desc')->take(3)->get()->toJson();
         });
-        $countries = cache()->remember('dashboard.countries', 600, function() {
-            return Country::all();
+        $recentArticles = json_decode($recentArticlesJson);
+        
+        $portsJson = cache()->remember('dashboard.ports', 600, function() {
+            return Port::with('country')->get()->toJson();
         });
+        $ports = json_decode($portsJson);
+
+        $countriesJson = cache()->remember('dashboard.countries', 600, function() {
+            return Country::all()->toJson();
+        });
+        $countries = json_decode($countriesJson);
         
         // Latest GDP and Inflation per country (grouped by country_id)
-        $gdps = cache()->remember('dashboard.gdps', 600, function() {
-            return Gdp::orderBy('year', 'desc')->get()->groupBy('country_id');
+        $gdpsJson = cache()->remember('dashboard.gdps', 600, function() {
+            return Gdp::orderBy('year', 'desc')->get()->groupBy('country_id')->toJson();
         });
-        $inflations = cache()->remember('dashboard.inflations', 600, function() {
-            return Inflation::orderBy('year', 'desc')->get()->groupBy('country_id');
+        $gdps = json_decode($gdpsJson, true);
+
+        $inflationsJson = cache()->remember('dashboard.inflations', 600, function() {
+            return Inflation::orderBy('year', 'desc')->get()->groupBy('country_id')->toJson();
         });
-        $weathers = cache()->remember('dashboard.weathers', 600, function() {
-            return Weather::with('country')->get();
+        $inflations = json_decode($inflationsJson, true);
+
+        $weathersJson = cache()->remember('dashboard.weathers', 600, function() {
+            return Weather::with('country')->get()->toJson();
         });
-        $currencies = cache()->remember('dashboard.currencies', 600, function() {
-            return Currency::all();
+        $weathers = json_decode($weathersJson);
+
+        $currenciesJson = cache()->remember('dashboard.currencies', 600, function() {
+            return Currency::all()->toJson();
         });
+        $currencies = json_decode($currenciesJson);
         
-        $highRiskCountries = cache()->remember('dashboard.high_risk_countries', 600, function() {
+        $highRiskCountriesJson = cache()->remember('dashboard.high_risk_countries', 600, function() {
             return RiskScore::with('country')
                 ->whereIn('id', function($query) {
                     $query->selectRaw('MAX(id)')
@@ -69,8 +81,10 @@ class UserDashboardController extends Controller
                         ->groupBy('country_id');
                 })
                 ->orderBy('total_score', 'desc')
-                ->get();
+                ->get()
+                ->toJson();
         });
+        $highRiskCountries = collect(json_decode($highRiskCountriesJson));
 
         return view('user.dashboard', compact(
             'totalCountries',
