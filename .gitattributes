@@ -10,7 +10,8 @@
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
 
-# Exclude non-core PHP files from language statistics to let CSS/JS show up
+# Exclude views (Blade) and non-core PHP from programming language stats
+resources/views/** linguist-documentation
 tests/** linguist-documentation
 database/** linguist-documentation
 config/** linguist-documentation
