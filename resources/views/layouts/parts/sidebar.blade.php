@@ -1,6 +1,6 @@
 <nav id="sidebar" class="d-flex flex-column">
     <div class="sidebar-header d-flex align-items-center justify-content-center">
-        <h4 class="mb-0 text-center fw-bold text-white py-2">
+        <h4 class="mb-0 text-center fw-bold py-2">
             @if($isAdmin)
                 <span class="text-danger">Admin</span> Panel
             @else
@@ -68,7 +68,7 @@
         @endif
     </ul>
 
-    <div class="p-3 text-center" style="font-size: 0.85em; color: #64748b; border-top: 1px solid #1e293b;">
+    <div class="p-3 text-center" style="font-size: 0.85em; color: #64748b; border-top: 1px solid #e2e8f0;">
         v1.0.0 &copy; 2026
     </div>
 </nav>

@@ -1,0 +1,71 @@
+/* Sidebar and General Custom Layout Styles */
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+#sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    background: #ffffff;
+    color: #0f172a;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    transition: all 0.3s;
+    overflow-y: auto;
+    border-right: 1px solid #e2e8f0;
+}
+
+#sidebar .sidebar-header {
+    padding: 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+#sidebar ul.components {
+    padding: 20px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+#sidebar ul li a {
+    padding: 12px 20px;
+    font-size: 1.1em;
+    display: block;
+    color: #475569;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+#sidebar ul li a:hover, #sidebar ul li.active > a {
+    color: #0f172a;
+    background: #f1f5f9;
+}
+
+#content {
+    width: 100%;
+    padding: 20px;
+    min-height: 100vh;
+    transition: all 0.3s;
+}
+
+.navbar-custom {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,.04);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    padding: 15px 20px;
+}
+
+.card-custom {
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    border-radius: 12px;
+}

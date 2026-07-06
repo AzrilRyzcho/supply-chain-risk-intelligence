@@ -22,26 +22,6 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <!-- Welcome Banner -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card card-custom p-4 text-white position-relative overflow-hidden" 
-                 style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(255, 255, 255, 0.08);">
-                <div class="position-absolute top-50 end-0 translate-middle-y me-4 opacity-10" style="font-size: 6rem; pointer-events: none;">
-                    <i class="bi bi-shield-fill-check"></i>
-                </div>
-                <div class="row align-items-center">
-                    <div class="col-lg-8">
-                        <h1 class="fw-bold mb-2">Global Supply Chain Risk Intelligence</h1>
-                        <p class="lead text-secondary-emphasis mb-0">
-                            Pantau cuaca ekstrem, nilai tukar mata uang, kemacetan pelabuhan logistik, inflasi makroekonomi, dan analisis sentimen berita geopolitik global secara *real-time*.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Quick Stats Row -->
     <div class="row mb-4">
         <div class="col-md-3 mb-3">
