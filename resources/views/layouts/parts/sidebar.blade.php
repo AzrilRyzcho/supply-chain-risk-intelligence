@@ -27,6 +27,12 @@
             <li class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <a href="{{ route('admin.users.index') }}"><i class="bi bi-people me-2"></i>Kelola User</a>
             </li>
+            <li class="{{ request()->routeIs('admin.news-cache.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.news-cache.index') }}"><i class="bi bi-database-fill me-2"></i>News Cache</a>
+            </li>
+            <li class="{{ request()->routeIs('admin.watchlists.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.watchlists.index') }}"><i class="bi bi-star-fill me-2"></i>Global Watchlist</a>
+            </li>
             <li class="mt-5">
                 <a href="{{ route('user.index') }}" class="text-info"><i class="bi bi-arrow-left-circle me-2"></i>Dasbor User</a>
             </li>

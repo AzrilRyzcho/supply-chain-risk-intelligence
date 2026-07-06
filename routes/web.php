@@ -44,6 +44,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('ports', PortController::class);
     Route::resource('countries', CountryController::class);
     Route::resource('users', UserController::class)->only(['index', 'destroy']);
+    
+    // News Cache Management
+    Route::get('/news-cache', [\App\Http\Controllers\Admin\NewsCacheController::class, 'index'])->name('news-cache.index');
+    Route::delete('/news-cache/clear', [\App\Http\Controllers\Admin\NewsCacheController::class, 'clear'])->name('news-cache.clear');
+    Route::delete('/news-cache/{news}', [\App\Http\Controllers\Admin\NewsCacheController::class, 'destroy'])->name('news-cache.destroy');
+
+    // Global Watchlist Management
+    Route::get('/watchlists', [\App\Http\Controllers\Admin\WatchlistController::class, 'index'])->name('watchlists.index');
+    Route::delete('/watchlists/{id}', [\App\Http\Controllers\Admin\WatchlistController::class, 'destroy'])->name('watchlists.destroy');
 });
 
 // Fallback Dashboard Route for compatibility (resolves route('dashboard'))
