@@ -25,13 +25,13 @@
     <!-- Quick Stats Row -->
     <div class="row mb-4">
         <div class="col-md-3 mb-3">
-            <div class="card card-custom p-3 bg-white h-100 border border-light-subtle shadow-sm">
+            <div class="card card-custom card-kpi-countries p-3 bg-white h-100 border border-light-subtle shadow-sm">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <span class="text-muted text-uppercase small fw-bold">Countries Tracked</span>
                         <h3 class="fw-bold mt-2 mb-0 text-slate-800">{{ $totalCountries }}</h3>
                     </div>
-                    <div class="bg-primary bg-opacity-10 text-primary rounded p-3">
+                    <div class="icon-box-blue">
                         <i class="bi bi-globe fs-3"></i>
                     </div>
                 </div>
@@ -41,13 +41,13 @@
             </div>
         </div>
         <div class="col-md-3 mb-3">
-            <div class="card card-custom p-3 bg-white h-100 border border-light-subtle shadow-sm">
+            <div class="card card-custom card-kpi-ports p-3 bg-white h-100 border border-light-subtle shadow-sm">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <span class="text-muted text-uppercase small fw-bold">Active Ports</span>
                         <h3 class="fw-bold mt-2 mb-0 text-slate-800">{{ $totalPorts }}</h3>
                     </div>
-                    <div class="bg-info bg-opacity-10 text-info rounded p-3">
+                    <div class="icon-box-green">
                         <i class="bi bi-anchor fs-3"></i>
                     </div>
                 </div>
@@ -57,13 +57,13 @@
             </div>
         </div>
         <div class="col-md-3 mb-3">
-            <div class="card card-custom p-3 bg-white h-100 border border-light-subtle shadow-sm">
+            <div class="card card-custom card-kpi-watchlist p-3 bg-white h-100 border border-light-subtle shadow-sm">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <span class="text-muted text-uppercase small fw-bold">Watchlist Items</span>
                         <h3 class="fw-bold mt-2 mb-0 text-slate-800">{{ $watchlistCount }}</h3>
                     </div>
-                    <div class="bg-warning bg-opacity-10 text-warning rounded p-3">
+                    <div class="icon-box-amber">
                         <i class="bi bi-star-fill fs-3"></i>
                     </div>
                 </div>
@@ -73,13 +73,13 @@
             </div>
         </div>
         <div class="col-md-3 mb-3">
-            <div class="card card-custom p-3 bg-white h-100 border border-light-subtle shadow-sm">
+            <div class="card card-custom card-kpi-threat p-3 bg-white h-100 border border-light-subtle shadow-sm">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <span class="text-muted text-uppercase small fw-bold">Threat Status</span>
                         <h3 class="fw-bold mt-2 mb-0 text-danger">Maks {{ $highRiskCountries->max('total_score') ?? 0 }}%</h3>
                     </div>
-                    <div class="bg-danger bg-opacity-10 text-danger rounded p-3">
+                    <div class="icon-box-red">
                         <i class="bi bi-exclamation-triangle-fill fs-3"></i>
                     </div>
                 </div>

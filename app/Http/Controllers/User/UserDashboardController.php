@@ -29,28 +29,48 @@ class UserDashboardController extends Controller
     {
         $this->syncStaleRiskScores();
 
-        $totalCountries = Country::count();
-        $totalPorts = Port::count();
+        $totalCountries = cache()->remember('stats.countries_count', 600, function() {
+            return Country::count();
+        });
+        $totalPorts = cache()->remember('stats.ports_count', 600, function() {
+            return Port::count();
+        });
         $watchlistCount = auth()->user()->watchedCountries()->count();
-        $recentArticles = Article::with('user')->orderBy('published_at', 'desc')->take(3)->get();
+        $recentArticles = cache()->remember('dashboard.recent_articles', 600, function() {
+            return Article::with('user')->orderBy('published_at', 'desc')->take(3)->get();
+        });
         
-        $ports = Port::with('country')->get();
-        $countries = Country::all();
+        $ports = cache()->remember('dashboard.ports', 600, function() {
+            return Port::with('country')->get();
+        });
+        $countries = cache()->remember('dashboard.countries', 600, function() {
+            return Country::all();
+        });
         
         // Latest GDP and Inflation per country (grouped by country_id)
-        $gdps = Gdp::orderBy('year', 'desc')->get()->groupBy('country_id');
-        $inflations = Inflation::orderBy('year', 'desc')->get()->groupBy('country_id');
-        $weathers = Weather::with('country')->get();
-        $currencies = Currency::all();
+        $gdps = cache()->remember('dashboard.gdps', 600, function() {
+            return Gdp::orderBy('year', 'desc')->get()->groupBy('country_id');
+        });
+        $inflations = cache()->remember('dashboard.inflations', 600, function() {
+            return Inflation::orderBy('year', 'desc')->get()->groupBy('country_id');
+        });
+        $weathers = cache()->remember('dashboard.weathers', 600, function() {
+            return Weather::with('country')->get();
+        });
+        $currencies = cache()->remember('dashboard.currencies', 600, function() {
+            return Currency::all();
+        });
         
-        $highRiskCountries = RiskScore::with('country')
-            ->whereIn('id', function($query) {
-                $query->selectRaw('MAX(id)')
-                    ->from('risk_scores')
-                    ->groupBy('country_id');
-            })
-            ->orderBy('total_score', 'desc')
-            ->get();
+        $highRiskCountries = cache()->remember('dashboard.high_risk_countries', 600, function() {
+            return RiskScore::with('country')
+                ->whereIn('id', function($query) {
+                    $query->selectRaw('MAX(id)')
+                        ->from('risk_scores')
+                        ->groupBy('country_id');
+                })
+                ->orderBy('total_score', 'desc')
+                ->get();
+        });
 
         return view('user.dashboard', compact(
             'totalCountries',
@@ -262,10 +282,15 @@ class UserDashboardController extends Controller
      */
     private function syncStaleRiskScores()
     {
+        if (cache()->has('risk_scores_synced')) {
+            return;
+        }
+
         try {
             $oldestRisk = RiskScore::orderBy('calculated_at', 'asc')->first();
             if (!$oldestRisk || !$oldestRisk->calculated_at || \Carbon\Carbon::parse($oldestRisk->calculated_at)->isBefore(now()->subHour())) {
                 app(RiskScoringService::class)->calculateAllCountries();
+                cache()->put('risk_scores_synced', true, 3600);
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::warning("Failed to auto-update risk scores: " . $e->getMessage());
