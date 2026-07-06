@@ -257,10 +257,18 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // --- 1. INITIALIZE MAP (Leaflet.js) ---
-        const map = L.map('risk-map').setView([10.0, 40.0], 2);
+        const map = L.map('risk-map', {
+            minZoom: 2,
+            maxBounds: [
+                [-90, -180],
+                [90, 180]
+            ],
+            maxBoundsViscosity: 1.0
+        }).setView([10.0, 40.0], 2);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
+            noWrap: true,
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 

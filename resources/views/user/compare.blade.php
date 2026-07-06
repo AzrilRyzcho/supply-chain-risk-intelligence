@@ -267,113 +267,36 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 @if($country1 && $country2)
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // --- 1. RISK COMPARE CHART (Radar) ---
-        const ctxRisk = document.getElementById('riskCompareChart').getContext('2d');
-        new Chart(ctxRisk, {
-            type: 'radar',
-            data: {
-                labels: ['Total Risiko', 'Cuaca', 'Inflasi', 'Kurs', 'Sentimen'],
-                datasets: [
-                    {
-                        label: "{{ $country1->name }}",
-                        data: [
-                            {{ $score1 ?? 0 }},
-                            {{ $country1->riskScores->sortByDesc('calculated_at')->first()->weather_score ?? 0 }},
-                            {{ $country1->riskScores->sortByDesc('calculated_at')->first()->inflation_score ?? 0 }},
-                            {{ $country1->riskScores->sortByDesc('calculated_at')->first()->currency_score ?? 0 }},
-                            {{ $country1->riskScores->sortByDesc('calculated_at')->first()->sentiment_score ?? 0 }}
-                        ],
-                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                        borderColor: '#2563eb',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#2563eb'
-                    },
-                    {
-                        label: "{{ $country2->name }}",
-                        data: [
-                            {{ $score2 ?? 0 }},
-                            {{ $country2->riskScores->sortByDesc('calculated_at')->first()->weather_score ?? 0 }},
-                            {{ $country2->riskScores->sortByDesc('calculated_at')->first()->inflation_score ?? 0 }},
-                            {{ $country2->riskScores->sortByDesc('calculated_at')->first()->currency_score ?? 0 }},
-                            {{ $country2->riskScores->sortByDesc('calculated_at')->first()->sentiment_score ?? 0 }}
-                        ],
-                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                        borderColor: '#ef4444',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#ef4444'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top' }
-                },
-                scales: {
-                    r: {
-                        angleLines: { display: true },
-                        suggestedMin: 0,
-                        suggestedMax: 100
-                    }
-                }
-            }
-        });
-
-        // --- 2. METRICS COMPARE CHART (Grouped Bar) ---
-        const ctxMetrics = document.getElementById('metricsCompareChart').getContext('2d');
-        new Chart(ctxMetrics, {
-            type: 'bar',
-            data: {
-                labels: ['GDP (Miliar $)', 'Inflasi (%)', 'Suhu (°C)', 'Angin (m/s)', 'Risiko Badai (%)'],
-                datasets: [
-                    {
-                        label: "{{ $country1->name }}",
-                        data: [
-                            {{ $latestGdp1->value ?? 0 }},
-                            {{ $latestInf1->rate ?? 0 }},
-                            {{ $country1->weather->temperature ?? 0 }},
-                            {{ $country1->weather->wind_speed ?? 0 }},
-                            {{ $country1->weather->storm_risk ?? 0 }}
-                        ],
-                        backgroundColor: '#2563eb',
-                        borderRadius: 4
-                    },
-                    {
-                        label: "{{ $country2->name }}",
-                        data: [
-                            {{ $latestGdp2->value ?? 0 }},
-                            {{ $latestInf2->rate ?? 0 }},
-                            {{ $country2->weather->temperature ?? 0 }},
-                            {{ $country2->weather->wind_speed ?? 0 }},
-                            {{ $country2->weather->storm_risk ?? 0 }}
-                        ],
-                        backgroundColor: '#ef4444',
-                        borderRadius: 4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top' }
-                },
-                scales: {
-                    y: {
-                        grid: { color: '#f1f5f9' },
-                        ticks: {
-                            callback: function(value) {
-                                return value.toLocaleString();
-                            }
-                        }
-                    },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-    });
+    // Pass dynamic backend data to global JS scope
+    window.compareData = {
+        country1: {
+            name: "{{ $country1->name }}",
+            score: {{ $score1 ?? 0 }},
+            weather: {{ $country1->riskScores->sortByDesc('calculated_at')->first()->weather_score ?? 0 }},
+            inflation: {{ $country1->riskScores->sortByDesc('calculated_at')->first()->inflation_score ?? 0 }},
+            currency: {{ $country1->riskScores->sortByDesc('calculated_at')->first()->currency_score ?? 0 }},
+            sentiment: {{ $country1->riskScores->sortByDesc('calculated_at')->first()->sentiment_score ?? 0 }},
+            gdp: {{ $latestGdp1->value ?? 0 }},
+            inflationRate: {{ $latestInf1->rate ?? 0 }},
+            temp: {{ $country1->weather->temperature ?? 0 }},
+            wind: {{ $country1->weather->wind_speed ?? 0 }},
+            storm: {{ $country1->weather->storm_risk ?? 0 }}
+        },
+        country2: {
+            name: "{{ $country2->name }}",
+            score: {{ $score2 ?? 0 }},
+            weather: {{ $country2->riskScores->sortByDesc('calculated_at')->first()->weather_score ?? 0 }},
+            inflation: {{ $country2->riskScores->sortByDesc('calculated_at')->first()->inflation_score ?? 0 }},
+            currency: {{ $country2->riskScores->sortByDesc('calculated_at')->first()->currency_score ?? 0 }},
+            sentiment: {{ $country2->riskScores->sortByDesc('calculated_at')->first()->sentiment_score ?? 0 }},
+            gdp: {{ $latestGdp2->value ?? 0 }},
+            inflationRate: {{ $latestInf2->rate ?? 0 }},
+            temp: {{ $country2->weather->temperature ?? 0 }},
+            wind: {{ $country2->weather->wind_speed ?? 0 }},
+            storm: {{ $country2->weather->storm_risk ?? 0 }}
+        }
+    };
 </script>
+<script src="{{ asset('js/compare.js') }}"></script>
 @endif
 @endpush

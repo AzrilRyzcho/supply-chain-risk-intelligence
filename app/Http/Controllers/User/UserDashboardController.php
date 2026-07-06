@@ -44,6 +44,11 @@ class UserDashboardController extends Controller
         $currencies = Currency::all();
         
         $highRiskCountries = RiskScore::with('country')
+            ->whereIn('id', function($query) {
+                $query->selectRaw('MAX(id)')
+                    ->from('risk_scores')
+                    ->groupBy('country_id');
+            })
             ->orderBy('total_score', 'desc')
             ->get();
 
@@ -161,7 +166,14 @@ class UserDashboardController extends Controller
     {
         $this->syncStaleRiskScores();
 
-        $riskScores = RiskScore::with('country')->orderBy('calculated_at', 'desc')->get();
+        $riskScores = RiskScore::with('country')
+            ->whereIn('id', function($query) {
+                $query->selectRaw('MAX(id)')
+                    ->from('risk_scores')
+                    ->groupBy('country_id');
+            })
+            ->orderBy('total_score', 'desc')
+            ->get();
         return view('user.risk', compact('riskScores'));
     }
 
