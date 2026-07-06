@@ -5,8 +5,8 @@
 @section('content')
 <div class="container-fluid py-4">
     <!-- Comparison Form Header -->
-    <div class="card card-custom p-4 bg-white mb-4">
-        <h5 class="fw-bold text-slate-800 mb-3">Bandingkan Dua Negara Mitra Dagang</h5>
+    <div class="card card-custom p-4 bg-white mb-4 border border-light-subtle shadow-sm">
+        <h5 class="fw-bold text-slate-800 mb-3"><i class="bi bi-columns-gap text-primary me-2"></i>Bandingkan Dua Negara Mitra Dagang</h5>
         <form action="{{ route('user.compare') }}" method="GET" class="row g-3 align-items-end">
             <div class="col-md-4">
                 <label class="form-label text-muted small fw-bold">Negara Pertama</label>
@@ -41,9 +41,9 @@
 
     @if($country1 || $country2)
         <div class="row">
-            <!-- side-by-side comparison cards -->
+            <!-- Side-by-side comparison cards -->
             <div class="col-md-6 mb-4">
-                <div class="card card-custom p-4 bg-white h-100 border border-light-subtle">
+                <div class="card card-custom p-4 bg-white h-100 border border-light-subtle shadow-sm">
                     @if($country1)
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h4 class="fw-bold text-slate-800 mb-0">{{ $country1->name }}</h4>
@@ -58,6 +58,15 @@
                             <tr>
                                 <td class="text-muted">Kode Kurs</td>
                                 <td class="fw-bold text-slate-800">{{ $country1->currency_code }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Nilai Kurs per 1 USD</td>
+                                <td class="fw-bold text-slate-800">
+                                    @php 
+                                        $curr1 = \App\Models\Currency::where('code', $country1->currency_code)->first();
+                                    @endphp
+                                    {{ $curr1 ? number_format($curr1->rate_to_usd, 2) . ' ' . $curr1->code : 'N/A' }}
+                                </td>
                             </tr>
                             <tr>
                                 <td class="text-muted">Koordinat</td>
@@ -123,7 +132,7 @@
             </div>
 
             <div class="col-md-6 mb-4">
-                <div class="card card-custom p-4 bg-white h-100 border border-light-subtle">
+                <div class="card card-custom p-4 bg-white h-100 border border-light-subtle shadow-sm">
                     @if($country2)
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h4 class="fw-bold text-slate-800 mb-0">{{ $country2->name }}</h4>
@@ -138,6 +147,15 @@
                             <tr>
                                 <td class="text-muted">Kode Kurs</td>
                                 <td class="fw-bold text-slate-800">{{ $country2->currency_code }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Nilai Kurs per 1 USD</td>
+                                <td class="fw-bold text-slate-800">
+                                    @php 
+                                        $curr2 = \App\Models\Currency::where('code', $country2->currency_code)->first();
+                                    @endphp
+                                    {{ $curr2 ? number_format($curr2->rate_to_usd, 2) . ' ' . $curr2->code : 'N/A' }}
+                                </td>
                             </tr>
                             <tr>
                                 <td class="text-muted">Koordinat</td>
@@ -202,10 +220,39 @@
                 </div>
             </div>
         </div>
+
+        @if($country1 && $country2)
+            <!-- Comparison Charts Row -->
+            <div class="row mt-4">
+                <!-- Chart 1: Risk Profile Comparison -->
+                <div class="col-md-6 mb-4">
+                    <div class="card card-custom p-4 bg-white border border-light-subtle shadow-sm h-100">
+                        <h5 class="fw-bold text-slate-800 mb-3">
+                            <i class="bi bi-shield-exclamation text-primary me-2"></i>Komparasi Profil Risiko Komposit
+                        </h5>
+                        <div style="height: 320px; position: relative;">
+                            <canvas id="riskCompareChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Economic & Climate Metrics -->
+                <div class="col-md-6 mb-4">
+                    <div class="card card-custom p-4 bg-white border border-light-subtle shadow-sm h-100">
+                        <h5 class="fw-bold text-slate-800 mb-3">
+                            <i class="bi bi-activity text-primary me-2"></i>Komparasi Indikator Makro & Cuaca
+                        </h5>
+                        <div style="height: 320px; position: relative;">
+                            <canvas id="metricsCompareChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
     @else
-        <div class="card card-custom p-5 bg-white text-center">
+        <div class="card card-custom p-5 bg-white text-center border border-light-subtle shadow-sm">
             <div class="text-slate-300 mb-3" style="font-size: 5rem;">
-                <i class="bi bi-columns-gap"></i>
+                <i class="bi bi-columns-gap text-secondary"></i>
             </div>
             <h4 class="fw-bold text-slate-800">Mulai Membandingkan Kinerja Rantai Pasok</h4>
             <p class="text-muted col-md-6 mx-auto">
@@ -215,3 +262,118 @@
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@if($country1 && $country2)
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // --- 1. RISK COMPARE CHART (Radar) ---
+        const ctxRisk = document.getElementById('riskCompareChart').getContext('2d');
+        new Chart(ctxRisk, {
+            type: 'radar',
+            data: {
+                labels: ['Total Risiko', 'Cuaca', 'Inflasi', 'Kurs', 'Sentimen'],
+                datasets: [
+                    {
+                        label: "{{ $country1->name }}",
+                        data: [
+                            {{ $score1 ?? 0 }},
+                            {{ $country1->riskScores->sortByDesc('calculated_at')->first()->weather_score ?? 0 }},
+                            {{ $country1->riskScores->sortByDesc('calculated_at')->first()->inflation_score ?? 0 }},
+                            {{ $country1->riskScores->sortByDesc('calculated_at')->first()->currency_score ?? 0 }},
+                            {{ $country1->riskScores->sortByDesc('calculated_at')->first()->sentiment_score ?? 0 }}
+                        ],
+                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                        borderColor: '#2563eb',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#2563eb'
+                    },
+                    {
+                        label: "{{ $country2->name }}",
+                        data: [
+                            {{ $score2 ?? 0 }},
+                            {{ $country2->riskScores->sortByDesc('calculated_at')->first()->weather_score ?? 0 }},
+                            {{ $country2->riskScores->sortByDesc('calculated_at')->first()->inflation_score ?? 0 }},
+                            {{ $country2->riskScores->sortByDesc('calculated_at')->first()->currency_score ?? 0 }},
+                            {{ $country2->riskScores->sortByDesc('calculated_at')->first()->sentiment_score ?? 0 }}
+                        ],
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        borderColor: '#ef4444',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#ef4444'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    r: {
+                        angleLines: { display: true },
+                        suggestedMin: 0,
+                        suggestedMax: 100
+                    }
+                }
+            }
+        });
+
+        // --- 2. METRICS COMPARE CHART (Grouped Bar) ---
+        const ctxMetrics = document.getElementById('metricsCompareChart').getContext('2d');
+        new Chart(ctxMetrics, {
+            type: 'bar',
+            data: {
+                labels: ['GDP (Miliar $)', 'Inflasi (%)', 'Suhu (°C)', 'Angin (m/s)', 'Risiko Badai (%)'],
+                datasets: [
+                    {
+                        label: "{{ $country1->name }}",
+                        data: [
+                            {{ $latestGdp1->value ?? 0 }},
+                            {{ $latestInf1->rate ?? 0 }},
+                            {{ $country1->weather->temperature ?? 0 }},
+                            {{ $country1->weather->wind_speed ?? 0 }},
+                            {{ $country1->weather->storm_risk ?? 0 }}
+                        ],
+                        backgroundColor: '#2563eb',
+                        borderRadius: 4
+                    },
+                    {
+                        label: "{{ $country2->name }}",
+                        data: [
+                            {{ $latestGdp2->value ?? 0 }},
+                            {{ $latestInf2->rate ?? 0 }},
+                            {{ $country2->weather->temperature ?? 0 }},
+                            {{ $country2->weather->wind_speed ?? 0 }},
+                            {{ $country2->weather->storm_risk ?? 0 }}
+                        ],
+                        backgroundColor: '#ef4444',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        grid: { color: '#f1f5f9' },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    });
+</script>
+@endif
+@endpush
