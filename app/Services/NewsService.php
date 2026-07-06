@@ -9,15 +9,18 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
+use App\Services\SentimentService;
 
 class NewsService
 {
     protected string $baseUrl = 'https://gnews.io/api/v4/search';
     protected ?string $apiKey;
+    protected SentimentService $sentimentService;
 
-    public function __construct()
+    public function __construct(SentimentService $sentimentService)
     {
         $this->apiKey = config('services.gnews.key');
+        $this->sentimentService = $sentimentService;
     }
 
     /**
@@ -74,7 +77,7 @@ class NewsService
             $publishedAt = isset($item['publishedAt']) ? Carbon::parse($item['publishedAt']) : now();
 
             // Perform Lexicon-based Sentiment Analysis
-            $sentimentResult = $this->analyzeSentiment($title . ' ' . $description);
+            $sentimentResult = $this->sentimentService->analyze($title . ' ' . $description);
 
             // Try to find matching country dynamically based on text keywords
             $countryId = $this->detectCountry($title . ' ' . $description);
@@ -122,53 +125,6 @@ class NewsService
                 'query' => request()->query(),
             ]
         );
-    }
-
-    /**
-     * Lexicon-based sentiment analyzer.
-     */
-    public function analyzeSentiment(string $text): array
-    {
-        $text = strtolower($text);
-
-        // Positive lexicon
-        $positiveWords = [
-            'increase', 'growth', 'implement', 'improve', 'throughput', 'success', 'modernize', 
-            'rise', 'boost', 'expand', 'benefit', 'agreement', 'recovery', 'gain', 'stable', 
-            'positive', 'surge', 'optimism', 'strengthen', 'advance'
-        ];
-
-        // Negative lexicon
-        $negativeWords = [
-            'decrease', 'decline', 'war', 'congestion', 'delay', 'loss', 'crisis', 'risk', 
-            'threat', 'inflation', 'conflict', 'disruption', 'drop', 'fail', 'fall', 'problem', 
-            'negative', 'tariff', 'strike', 'sanction', 'blockade', 'slowdown'
-        ];
-
-        $positiveScore = 0;
-        $negativeScore = 0;
-
-        foreach ($positiveWords as $word) {
-            $positiveScore += substr_count($text, $word);
-        }
-
-        foreach ($negativeWords as $word) {
-            $negativeScore += substr_count($text, $word);
-        }
-
-        if ($positiveScore > $negativeScore) {
-            $sentiment = 'positive';
-        } elseif ($negativeScore > $positiveScore) {
-            $sentiment = 'negative';
-        } else {
-            $sentiment = 'neutral';
-        }
-
-        return [
-            'sentiment' => $sentiment,
-            'positive_score' => $positiveScore,
-            'negative_score' => $negativeScore,
-        ];
     }
 
     /**

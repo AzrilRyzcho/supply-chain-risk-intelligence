@@ -22,16 +22,16 @@ class NewsIntegrationTest extends TestCase
 
     public function test_lexicon_sentiment_analysis_scores_correctly(): void
     {
-        $service = app(NewsService::class);
+        $service = app(\App\Services\SentimentService::class);
 
         // Positive text
-        $res1 = $service->analyzeSentiment("Great growth and improvement in logistics success");
+        $res1 = $service->analyze("Great growth and improvement in logistics success");
         $this->assertEquals('positive', $res1['sentiment']);
         $this->assertGreaterThan(0, $res1['positive_score']);
         $this->assertEquals(0, $res1['negative_score']);
 
         // Negative text
-        $res2 = $service->analyzeSentiment("Severe congestion delay and inflation crisis decline");
+        $res2 = $service->analyze("Severe congestion delay and inflation crisis decline");
         $this->assertEquals('negative', $res2['sentiment']);
         $this->assertEquals(0, $res2['positive_score']);
         $this->assertGreaterThan(0, $res2['negative_score']);
