@@ -20,6 +20,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/country', [UserDashboardController::class, 'country'])->name('country');
         Route::get('/compare', [UserDashboardController::class, 'compare'])->name('compare');
         Route::get('/watchlist', [UserDashboardController::class, 'watchlist'])->name('watchlist');
+        Route::post('/watchlist/add', [UserDashboardController::class, 'watchlistAdd'])->name('watchlist.add');
+        Route::post('/watchlist/remove/{country}', [UserDashboardController::class, 'watchlistRemove'])->name('watchlist.remove');
         Route::get('/weather', [UserDashboardController::class, 'weather'])->name('weather');
         Route::get('/currency', [UserDashboardController::class, 'currency'])->name('currency');
         Route::get('/news', [UserDashboardController::class, 'news'])->name('news');

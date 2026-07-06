@@ -205,8 +205,39 @@ class UserDashboardController extends Controller
      */
     public function watchlist()
     {
-        $watchedCountries = auth()->user()->watchedCountries()->with(['weather', 'riskScores'])->get();
-        return view('user.watchlist', compact('watchedCountries'));
+        $user = auth()->user();
+        $watchedCountries = $user->watchedCountries()->with(['weather', 'riskScores'])->get();
+        
+        $watchedIds = $watchedCountries->pluck('id');
+        $availableCountries = Country::whereNotIn('id', $watchedIds)->orderBy('name', 'asc')->get();
+
+        return view('user.watchlist', compact('watchedCountries', 'availableCountries'));
+    }
+
+    /**
+     * Add a country to the user's watchlist.
+     */
+    public function watchlistAdd(Request $request)
+    {
+        $request->validate([
+            'country_id' => 'required|exists:countries,id',
+        ]);
+
+        $user = auth()->user();
+        $user->watchedCountries()->syncWithoutDetaching([$request->country_id]);
+
+        return redirect()->back()->with('success', 'Negara berhasil ditambahkan ke daftar pantauan.');
+    }
+
+    /**
+     * Remove a country from the user's watchlist.
+     */
+    public function watchlistRemove(Country $country)
+    {
+        $user = auth()->user();
+        $user->watchedCountries()->detach($country->id);
+
+        return redirect()->back()->with('success', 'Negara berhasil dihapus dari daftar pantauan.');
     }
 
     /**

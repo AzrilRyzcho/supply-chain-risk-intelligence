@@ -10,13 +10,6 @@
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
 
-# Exclude views (Blade) and non-core PHP from programming language stats
-resources/views/** linguist-documentation
-tests/** linguist-documentation
-database/** linguist-documentation
-config/** linguist-documentation
-bootstrap/** linguist-documentation
-
 # Force GitHub Linguist to detect our custom CSS & JS assets in public directory
 public/css/style.css linguist-detectable
 public/js/dashboard.js linguist-detectable

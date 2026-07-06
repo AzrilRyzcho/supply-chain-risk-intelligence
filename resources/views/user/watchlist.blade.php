@@ -4,6 +4,40 @@
 
 @section('content')
 <div class="container-fluid py-4">
+    <!-- Success Feedback Alert -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <!-- Add Favorite Form Card -->
+    <div class="card card-custom p-4 bg-white border border-light-subtle shadow-sm mb-4">
+        <h5 class="fw-bold text-slate-800 mb-3"><i class="bi bi-star-fill text-warning me-2"></i>Tambah Negara ke Daftar Pantauan</h5>
+        <form action="{{ route('user.watchlist.add') }}" method="POST" class="row g-2 align-items-center">
+            @csrf
+            <div class="col-md-8 col-lg-5">
+                <select name="country_id" class="form-select @error('country_id') is-invalid @enderror" required>
+                    <option value="" disabled selected>Pilih Negara Mitra...</option>
+                    @forelse($availableCountries as $ac)
+                        <option value="{{ $ac->id }}">{{ $ac->name }} ({{ $ac->code }}) - {{ $ac->region }}</option>
+                    @empty
+                        <option value="" disabled>Semua negara mitra sudah ada di daftar pantauan Anda.</option>
+                    @endforelse
+                </select>
+                @error('country_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary fw-bold" @if($availableCountries->isEmpty()) disabled @endif>
+                    <i class="bi bi-plus-lg me-1"></i>Tambah Favorit
+                </button>
+            </div>
+        </form>
+    </div>
+
     <div class="card card-custom p-4 bg-white border border-light-subtle shadow-sm">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
@@ -70,9 +104,17 @@
                                 @endif
                             </td>
                             <td class="text-center">
-                                <a href="{{ route('user.country', ['code' => $c->code]) }}" class="btn btn-sm btn-outline-primary fw-bold">
-                                    <i class="bi bi-eye me-1"></i>Analisis
-                                </a>
+                                <div class="d-inline-flex gap-2">
+                                    <a href="{{ route('user.country', ['code' => $c->code]) }}" class="btn btn-sm btn-outline-primary fw-bold">
+                                        <i class="bi bi-eye me-1"></i>Analisis
+                                    </a>
+                                    <form action="{{ route('user.watchlist.remove', $c->id) }}" method="POST" onsubmit="return confirm('Hapus {{ $c->name }} dari daftar pantauan Anda?')">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-danger fw-bold">
+                                            <i class="bi bi-trash me-1"></i>Hapus
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
