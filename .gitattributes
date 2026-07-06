@@ -10,9 +10,21 @@
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
 
-# Force GitHub Linguist to detect CSS and JS in public
-public/css/*.css linguist-vendored=false
-public/css/*.css linguist-detectable=true
-public/js/*.js linguist-vendored=false
-public/js/*.js linguist-detectable=true
+# Exclude non-core PHP files from language statistics to let CSS/JS show up
+tests/** linguist-documentation
+database/** linguist-documentation
+config/** linguist-documentation
+bootstrap/** linguist-documentation
 
+# Force GitHub Linguist to detect our custom CSS & JS assets in public directory
+public/css/style.css linguist-detectable
+public/js/dashboard.js linguist-detectable
+public/js/ports.js linguist-detectable
+public/js/weather.js linguist-detectable
+public/js/compare.js linguist-detectable
+
+public/css/style.css linguist-vendored=false
+public/js/dashboard.js linguist-vendored=false
+public/js/ports.js linguist-vendored=false
+public/js/weather.js linguist-vendored=false
+public/js/compare.js linguist-vendored=false
