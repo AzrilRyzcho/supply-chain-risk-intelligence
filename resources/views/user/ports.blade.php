@@ -52,7 +52,7 @@
     </div>
 
     <!-- Filters Bar -->
-    <div class="card card-custom p-3 bg-white mb-4 border border-light-subtle shadow-sm">
+    <div class="card card-custom p-3 bg-white mb-4 border border-light-subtle shadow-sm" style="position: relative; z-index: 10;">
         <div class="row g-3">
             <div class="col-md-6">
                 <div class="input-group">

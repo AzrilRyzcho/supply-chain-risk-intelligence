@@ -32,7 +32,7 @@
 @section('content')
 <div class="container-fluid py-4">
     <!-- Comparison Form Header -->
-    <div class="card card-custom p-4 bg-white mb-4 border border-light-subtle shadow-sm">
+    <div class="card card-custom p-4 bg-white mb-4 border border-light-subtle shadow-sm" style="position: relative; z-index: 10;">
         <h5 class="fw-bold text-slate-800 mb-3"><i class="bi bi-columns-gap text-primary me-2"></i>Bandingkan Dua Negara Mitra Dagang</h5>
         <form action="{{ route('user.compare') }}" method="GET" class="row g-3 align-items-end">
             <div class="col-md-4">

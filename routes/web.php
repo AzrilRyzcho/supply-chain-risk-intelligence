@@ -24,6 +24,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/watchlist/remove/{country}', [UserDashboardController::class, 'watchlistRemove'])->name('watchlist.remove');
         Route::get('/weather', [UserDashboardController::class, 'weather'])->name('weather');
         Route::get('/currency', [UserDashboardController::class, 'currency'])->name('currency');
+        Route::get('/api/currency/{code}', [\App\Http\Controllers\Api\CurrencyApiController::class, 'show'])->name('api.currency');
         Route::get('/news', [UserDashboardController::class, 'news'])->name('news');
         Route::get('/ports', [UserDashboardController::class, 'ports'])->name('ports');
         Route::get('/risk', [UserDashboardController::class, 'risk'])->name('risk');

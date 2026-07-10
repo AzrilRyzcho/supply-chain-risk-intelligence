@@ -40,7 +40,7 @@
     @endif
 
     <!-- Add Favorite Form Card -->
-    <div class="card card-custom p-4 bg-white border border-light-subtle shadow-sm mb-4">
+    <div class="card card-custom p-4 bg-white border border-light-subtle shadow-sm mb-4" style="position: relative; z-index: 10;">
         <h5 class="fw-bold text-slate-800 mb-3"><i class="bi bi-star-fill text-warning me-2"></i>Tambah Negara ke Daftar Pantauan</h5>
         <form action="{{ route('user.watchlist.add') }}" method="POST" class="row g-2 align-items-center">
             @csrf

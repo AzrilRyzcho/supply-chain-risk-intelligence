@@ -32,7 +32,7 @@
 @section('content')
 <div class="container-fluid py-4">
     <!-- Country Select Header -->
-    <div class="card card-custom p-4 bg-white mb-4">
+    <div class="card card-custom p-4 bg-white mb-4" style="position: relative; z-index: 10;">
         <h5 class="fw-bold text-slate-800 mb-3">Pilih Negara Mitra Dagang</h5>
         <form action="{{ route('user.country') }}" method="GET" class="row g-3 align-items-center">
             <div class="col-md-4">
@@ -270,7 +270,7 @@
     document.addEventListener("DOMContentLoaded", function() {
         var el = document.getElementById("country-select");
         if (el) {
-            new TomSelect(el, {
+            var ts = new TomSelect(el, {
                 create: false,
                 sortField: {
                     field: "text",
@@ -287,6 +287,11 @@
                         var img = flagUrl ? '<img class="me-2" style="width: 20px; height: 12px; object-fit: cover; border-radius: 2px; border: 1px solid #e2e8f0;" src="' + flagUrl + '" />' : '';
                         return '<div>' + img + '<span>' + escape(data.text) + '</span></div>';
                     }
+                }
+            });
+            ts.on('change', function(value) {
+                if (value) {
+                    el.form.submit();
                 }
             });
         }
