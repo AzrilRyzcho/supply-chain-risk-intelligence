@@ -1,8 +1,37 @@
 @extends('layouts.app')
 
-@section('title', 'Ports - RiskIntel')
+@section('title', 'Global Ports - RiskIntel')
 
 @push('styles')
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<style>
+    .ts-wrapper .ts-control {
+        background-color: #f8fafc !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        padding: 0.5rem 0.75rem !important;
+        box-shadow: none !important;
+    }
+    .ts-wrapper.focus .ts-control {
+        border-color: #86b7fe !important;
+        outline: 0 !important;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+    }
+    .ts-dropdown {
+        border-radius: 0.375rem !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+    .ts-dropdown .active {
+        background-color: #3b82f6 !important;
+        color: #ffffff !important;
+    }
+    /* Fixing layout spacing with ts-wrapper inside input-group */
+    .input-group > .ts-wrapper {
+        flex: 1 1 auto;
+        width: 1%;
+    }
+</style>
 <!-- Leaflet MarkerCluster CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
@@ -35,9 +64,9 @@
                 <div class="input-group">
                     <span class="input-group-text bg-light border-light-subtle"><i class="bi bi-flag text-secondary"></i></span>
                     <select id="country-filter" class="form-select border-light-subtle" onchange="filterPorts()">
-                        <option value="">-- Semua Negara --</option>
+                        <option value="" data-flag="">-- Semua Negara --</option>
                         @foreach($countries as $c)
-                            <option value="{{ $c->id }}">{{ $c->name }}</option>
+                            <option value="{{ $c->id }}" data-flag="{{ $c->flag }}">{{ $c->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -83,6 +112,34 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var el = document.getElementById("country-filter");
+        if (el) {
+            var ts = new TomSelect(el, {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                render: {
+                    option: function(data, escape) {
+                        var flagUrl = data.flag;
+                        var img = flagUrl ? '<img class="me-2" style="width: 20px; height: 12px; object-fit: cover; border-radius: 2px; border: 1px solid #e2e8f0;" src="' + flagUrl + '" />' : '';
+                        return '<div>' + img + '<span>' + escape(data.text) + '</span></div>';
+                    },
+                    item: function(data, escape) {
+                        var flagUrl = data.flag;
+                        var img = flagUrl ? '<img class="me-2" style="width: 20px; height: 12px; object-fit: cover; border-radius: 2px; border: 1px solid #e2e8f0;" src="' + flagUrl + '" />' : '';
+                        return '<div>' + img + '<span>' + escape(data.text) + '</span></div>';
+                    }
+                }
+            });
+            // tom select overrides native change, so we trigger filterPorts manually on change
+            ts.on('change', function(value) {
+                filterPorts();
+            });
+        }
+    });
+</script>
 <!-- Leaflet MarkerCluster JS -->
 <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 <script>

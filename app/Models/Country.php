@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-#[Fillable(['name', 'code', 'currency_code', 'region', 'latitude', 'longitude', 'flag', 'subregion', 'languages', 'population', 'area'])]
+#[Fillable(['name', 'official_name', 'code', 'iso3_code', 'currency_code', 'currency_symbol', 'region', 'latitude', 'longitude', 'flag', 'subregion', 'capital', 'languages', 'population', 'area', 'timezone'])]
 class Country extends Model
 {
     /**
@@ -18,6 +18,7 @@ class Country extends Model
      */
     protected $casts = [
         'languages' => 'array',
+        'timezone' => 'array',
     ];
 
     /**

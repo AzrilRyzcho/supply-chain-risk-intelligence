@@ -48,7 +48,7 @@ class UserDashboardController extends Controller
         $ports = json_decode($portsJson);
 
         $countriesJson = cache()->remember('dashboard.countries', 600, function() {
-            return Country::all()->toJson();
+            return Country::orderBy('name', 'asc')->get()->toJson();
         });
         $countries = json_decode($countriesJson);
         
@@ -106,7 +106,7 @@ class UserDashboardController extends Controller
      */
     public function country(Request $request, CountryService $countryService)
     {
-        $countries = Country::all();
+        $countries = Country::orderBy('name', 'asc')->get();
         $selectedCode = $request->get('code');
         $selectedCountry = null;
         $gdpData = collect();
@@ -216,7 +216,7 @@ class UserDashboardController extends Controller
      */
     public function compare(Request $request)
     {
-        $countries = Country::all();
+        $countries = Country::orderBy('name', 'asc')->get();
         $code1 = $request->get('country1');
         $code2 = $request->get('country2');
 

@@ -2,6 +2,33 @@
 
 @section('title', 'Comparison - RiskIntel')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<style>
+    .ts-wrapper .ts-control {
+        background-color: #f8fafc !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        padding: 0.5rem 0.75rem !important;
+        box-shadow: none !important;
+    }
+    .ts-wrapper.focus .ts-control {
+        border-color: #86b7fe !important;
+        outline: 0 !important;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+    }
+    .ts-dropdown {
+        border-radius: 0.375rem !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+    .ts-dropdown .active {
+        background-color: #3b82f6 !important;
+        color: #ffffff !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid py-4">
     <!-- Comparison Form Header -->
@@ -10,10 +37,10 @@
         <form action="{{ route('user.compare') }}" method="GET" class="row g-3 align-items-end">
             <div class="col-md-4">
                 <label class="form-label text-muted small fw-bold">Negara Pertama</label>
-                <select name="country1" class="form-select bg-light border-secondary-subtle">
-                    <option value="">-- Pilih Negara A --</option>
+                <select name="country1" id="compare-select-1" class="form-select bg-light border-secondary-subtle">
+                    <option value="" data-flag="">-- Pilih Negara A --</option>
                     @foreach($countries as $c)
-                        <option value="{{ $c->code }}" {{ $code1 == $c->code ? 'selected' : '' }}>
+                        <option value="{{ $c->code }}" data-flag="{{ $c->flag }}" {{ $code1 == $c->code ? 'selected' : '' }}>
                             {{ $c->name }} ({{ $c->code }})
                         </option>
                     @endforeach
@@ -24,10 +51,10 @@
             </div>
             <div class="col-md-4">
                 <label class="form-label text-muted small fw-bold">Negara Kedua</label>
-                <select name="country2" class="form-select bg-light border-secondary-subtle">
-                    <option value="">-- Pilih Negara B --</option>
+                <select name="country2" id="compare-select-2" class="form-select bg-light border-secondary-subtle">
+                    <option value="" data-flag="">-- Pilih Negara B --</option>
                     @foreach($countries as $c)
-                        <option value="{{ $c->code }}" {{ $code2 == $c->code ? 'selected' : '' }}>
+                        <option value="{{ $c->code }}" data-flag="{{ $c->flag }}" {{ $code2 == $c->code ? 'selected' : '' }}>
                             {{ $c->name }} ({{ $c->code }})
                         </option>
                     @endforeach
@@ -264,6 +291,41 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var renderTemplate = {
+            option: function(data, escape) {
+                var flagUrl = data.flag;
+                var img = flagUrl ? '<img class="me-2" style="width: 20px; height: 12px; object-fit: cover; border-radius: 2px; border: 1px solid #e2e8f0;" src="' + flagUrl + '" />' : '';
+                return '<div>' + img + '<span>' + escape(data.text) + '</span></div>';
+            },
+            item: function(data, escape) {
+                var flagUrl = data.flag;
+                var img = flagUrl ? '<img class="me-2" style="width: 20px; height: 12px; object-fit: cover; border-radius: 2px; border: 1px solid #e2e8f0;" src="' + flagUrl + '" />' : '';
+                return '<div>' + img + '<span>' + escape(data.text) + '</span></div>';
+            }
+        };
+
+        var el1 = document.getElementById("compare-select-1");
+        if (el1) {
+            new TomSelect(el1, {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                render: renderTemplate
+            });
+        }
+
+        var el2 = document.getElementById("compare-select-2");
+        if (el2) {
+            new TomSelect(el2, {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                render: renderTemplate
+            });
+        }
+    });
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 @if($country1 && $country2)
 <script>

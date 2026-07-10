@@ -2,6 +2,33 @@
 
 @section('title', 'Watchlist - RiskIntel')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<style>
+    .ts-wrapper .ts-control {
+        background-color: #f8fafc !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        padding: 0.5rem 0.75rem !important;
+        box-shadow: none !important;
+    }
+    .ts-wrapper.focus .ts-control {
+        border-color: #86b7fe !important;
+        outline: 0 !important;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+    }
+    .ts-dropdown {
+        border-radius: 0.375rem !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+    .ts-dropdown .active {
+        background-color: #3b82f6 !important;
+        color: #ffffff !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid py-4">
     <!-- Success Feedback Alert -->
@@ -18,12 +45,12 @@
         <form action="{{ route('user.watchlist.add') }}" method="POST" class="row g-2 align-items-center">
             @csrf
             <div class="col-md-8 col-lg-5">
-                <select name="country_id" class="form-select @error('country_id') is-invalid @enderror" required>
-                    <option value="" disabled selected>Pilih Negara Mitra...</option>
+                <select name="country_id" id="watchlist-select" class="form-select @error('country_id') is-invalid @enderror" required>
+                    <option value="" disabled selected data-flag="">Pilih Negara Mitra...</option>
                     @forelse($availableCountries as $ac)
-                        <option value="{{ $ac->id }}">{{ $ac->name }} ({{ $ac->code }}) - {{ $ac->region }}</option>
+                        <option value="{{ $ac->id }}" data-flag="{{ $ac->flag }}">{{ $ac->name }} ({{ $ac->code }}) - {{ $ac->region }}</option>
                     @empty
-                        <option value="" disabled>Semua negara mitra sudah ada di daftar pantauan Anda.</option>
+                        <option value="" disabled data-flag="">Semua negara mitra sudah ada di daftar pantauan Anda.</option>
                     @endforelse
                 </select>
                 @error('country_id')
@@ -133,3 +160,30 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var el = document.getElementById("watchlist-select");
+        if (el) {
+            new TomSelect(el, {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                render: {
+                    option: function(data, escape) {
+                        var flagUrl = data.flag;
+                        var img = flagUrl ? '<img class="me-2" style="width: 20px; height: 12px; object-fit: cover; border-radius: 2px; border: 1px solid #e2e8f0;" src="' + flagUrl + '" />' : '';
+                        return '<div>' + img + '<span>' + escape(data.text) + '</span></div>';
+                    },
+                    item: function(data, escape) {
+                        var flagUrl = data.flag;
+                        var img = flagUrl ? '<img class="me-2" style="width: 20px; height: 12px; object-fit: cover; border-radius: 2px; border: 1px solid #e2e8f0;" src="' + flagUrl + '" />' : '';
+                        return '<div>' + img + '<span>' + escape(data.text) + '</span></div>';
+                    }
+                }
+            });
+        }
+    });
+</script>
+@endpush

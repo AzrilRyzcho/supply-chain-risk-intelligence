@@ -2,6 +2,33 @@
 
 @section('title', 'Countries - RiskIntel')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<style>
+    .ts-wrapper .ts-control {
+        background-color: #f8fafc !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        padding: 0.5rem 0.75rem !important;
+        box-shadow: none !important;
+    }
+    .ts-wrapper.focus .ts-control {
+        border-color: #86b7fe !important;
+        outline: 0 !important;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+    }
+    .ts-dropdown {
+        border-radius: 0.375rem !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+    .ts-dropdown .active {
+        background-color: #3b82f6 !important;
+        color: #ffffff !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid py-4">
     <!-- Country Select Header -->
@@ -10,9 +37,9 @@
         <form action="{{ route('user.country') }}" method="GET" class="row g-3 align-items-center">
             <div class="col-md-4">
                 <select name="code" class="form-select bg-light border-secondary-subtle" id="country-select" onchange="this.form.submit()">
-                    <option value="">-- Pilih Negara --</option>
+                    <option value="" data-flag="">-- Pilih Negara --</option>
                     @foreach($countries as $c)
-                        <option value="{{ $c->code }}" {{ $selectedCode == $c->code ? 'selected' : '' }}>
+                        <option value="{{ $c->code }}" data-flag="{{ $c->flag }}" {{ $selectedCode == $c->code ? 'selected' : '' }}>
                             {{ $c->name }} ({{ $c->code }})
                         </option>
                     @endforeach
@@ -238,6 +265,34 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var el = document.getElementById("country-select");
+        if (el) {
+            new TomSelect(el, {
+                create: false,
+                sortField: {
+                    field: "text",
+                    direction: "asc"
+                },
+                render: {
+                    option: function(data, escape) {
+                        var flagUrl = data.flag;
+                        var img = flagUrl ? '<img class="me-2" style="width: 20px; height: 12px; object-fit: cover; border-radius: 2px; border: 1px solid #e2e8f0;" src="' + flagUrl + '" />' : '';
+                        return '<div>' + img + '<span>' + escape(data.text) + '</span></div>';
+                    },
+                    item: function(data, escape) {
+                        var flagUrl = data.flag;
+                        var img = flagUrl ? '<img class="me-2" style="width: 20px; height: 12px; object-fit: cover; border-radius: 2px; border: 1px solid #e2e8f0;" src="' + flagUrl + '" />' : '';
+                        return '<div>' + img + '<span>' + escape(data.text) + '</span></div>';
+                    }
+                }
+            });
+        }
+    });
+</script>
+
 @if($selectedCountry)
 <!-- Load Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
