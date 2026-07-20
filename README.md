@@ -44,5 +44,5 @@ Platform berbasis Laravel untuk memantau dan memitigasi risiko rantai pasok glob
 > - **Admin**: `admin@gmail.com` | `admin123`
 > - **User**: `user@example.com` | `password`
 
-## Lisensi
-[MIT License](LICENSE)
+**Link domain**
+https://zychrisk.my.id/
