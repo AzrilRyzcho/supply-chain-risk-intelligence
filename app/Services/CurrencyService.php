@@ -80,6 +80,42 @@ class CurrencyService
     }
 
     /**
+     * Fetch historical rates for all currencies from Frankfurter API in one request.
+     * Caches the result for 24 hours.
+     */
+    public function getAllHistoricalRates(string $base = 'USD', int $days = 30): array
+    {
+        $base = strtoupper($base);
+        $cacheKey = "currency_history_all_{$base}_{$days}";
+
+        return Cache::remember($cacheKey, 86400, function () use ($base, $days) {
+            try {
+                Log::info("Fetching all historical rates from Frankfurter for base {$base}...");
+                $endDate = Carbon::today()->format('Y-m-d');
+                $startDate = Carbon::today()->subDays($days)->format('Y-m-d');
+
+                $response = Http::timeout(5)->get("https://api.frankfurter.app/{$startDate}..{$endDate}", [
+                    'from' => $base,
+                ]);
+
+                if ($response->failed()) {
+                    throw new \Exception("Frankfurter API returned status: " . $response->status());
+                }
+
+                $data = $response->json();
+                if (empty($data) || !isset($data['rates'])) {
+                    throw new \Exception("Invalid or empty response from Frankfurter API.");
+                }
+
+                return $data;
+            } catch (\Exception $e) {
+                Log::error("Failed to fetch all historical exchange rates: " . $e->getMessage());
+                return [];
+            }
+        });
+    }
+
+    /**
      * Synchronize rates to the database.
      */
     public function syncRatesToDatabase(): void

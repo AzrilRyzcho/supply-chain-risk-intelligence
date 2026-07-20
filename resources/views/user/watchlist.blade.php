@@ -170,6 +170,7 @@
             new TomSelect(el, {
                 create: false,
                 sortField: { field: "text", direction: "asc" },
+                maxOptions: null,
                 render: {
                     option: function(data, escape) {
                         var flagUrl = data.flag;

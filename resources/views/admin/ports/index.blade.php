@@ -2,6 +2,24 @@
 
 @section('title', 'Kelola Pelabuhan - Panel Admin')
 
+@push('styles')
+<!-- Leaflet Map CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<style>
+    .map-picker {
+        height: 280px;
+        min-height: 250px;
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        z-index: 1;
+    }
+    body.dark-theme .map-picker {
+        border-color: #334155;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid py-4">
     <!-- Header -->
@@ -128,42 +146,56 @@
 
 <!-- ================= CREATE MODAL ================= -->
 <div class="modal fade" id="createPortModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="{{ route('admin.ports.store') }}" method="POST">
                 @csrf
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold" id="createModalLabel">Tambah Pelabuhan Baru</h5>
+                    <h5 class="modal-title fw-bold" id="createModalLabel"><i class="bi bi-geo-alt-fill me-2"></i>Tambah Pelabuhan Baru</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted">Nama Pelabuhan</label>
-                        <input type="text" name="name" class="form-control" placeholder="Contoh: Tanjung Priok" required value="{{ old('name') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted">Kode Pelabuhan (LOCODE)</label>
-                        <input type="text" name="code" class="form-control" placeholder="Contoh: IDTPP" required value="{{ old('code') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted">Negara Lokasi</label>
-                        <select name="country_id" class="form-select" required>
-                            <option value="">-- Pilih Negara --</option>
-                            @foreach($countries as $c)
-                                <option value="{{ $c->id }}" {{ old('country_id') == $c->id ? 'selected' : '' }}>
-                                    {{ $c->name }} ({{ $c->code }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted">Latitude</label>
-                            <input type="number" step="any" name="latitude" class="form-control" placeholder="-6.103" required value="{{ old('latitude') }}">
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted">Nama Pelabuhan</label>
+                                <input type="text" name="name" class="form-control" placeholder="Contoh: Tanjung Priok" required value="{{ old('name') }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted">Kode Pelabuhan (LOCODE)</label>
+                                <input type="text" name="code" class="form-control" placeholder="Contoh: IDTPP" required value="{{ old('code') }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted">Negara Lokasi</label>
+                                <select name="country_id" id="create-country" class="form-select" required>
+                                    <option value="">-- Pilih Negara --</option>
+                                    @foreach($countries as $c)
+                                        <option value="{{ $c->id }}" data-lat="{{ $c->latitude }}" data-lng="{{ $c->longitude }}" {{ old('country_id') == $c->id ? 'selected' : '' }}>
+                                            {{ $c->name }} ({{ $c->code }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Latitude</label>
+                                    <input type="number" step="any" name="latitude" id="create-latitude" class="form-control" placeholder="-6.103" required value="{{ old('latitude') }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Longitude</label>
+                                    <input type="number" step="any" name="longitude" id="create-longitude" class="form-control" placeholder="106.879" required value="{{ old('longitude') }}">
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted">Longitude</label>
-                            <input type="number" step="any" name="longitude" class="form-control" placeholder="106.879" required value="{{ old('longitude') }}">
+                        <div class="col-lg-6 d-flex flex-column">
+                            <label class="form-label fw-bold small text-muted d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-map me-1"></i>Pilih Lokasi di Peta</span>
+                                <span class="badge bg-info-subtle text-info small fw-normal"><i class="bi bi-hand-index-thumb me-1"></i>Klik / Geser Marker</span>
+                            </label>
+                            <div id="createMap" class="map-picker shadow-sm flex-grow-1"></div>
+                            <div class="form-text small text-muted mt-1">
+                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>Klik lokasi pada peta atau geser marker untuk mengisi latitude & longitude.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -178,42 +210,56 @@
 
 <!-- ================= EDIT MODAL ================= -->
 <div class="modal fade" id="editPortModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form id="editForm" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold" id="editModalLabel">Edit Data Pelabuhan</h5>
+                    <h5 class="modal-title fw-bold" id="editModalLabel"><i class="bi bi-pencil-square me-2"></i>Edit Data Pelabuhan</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted">Nama Pelabuhan</label>
-                        <input type="text" name="name" id="edit-name" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted">Kode Pelabuhan (LOCODE)</label>
-                        <input type="text" name="code" id="edit-code" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted">Negara Lokasi</label>
-                        <select name="country_id" id="edit-country" class="form-select" required>
-                            @foreach($countries as $c)
-                                <option value="{{ $c->id }}">
-                                    {{ $c->name }} ({{ $c->code }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted">Latitude</label>
-                            <input type="number" step="any" name="latitude" id="edit-latitude" class="form-control" required>
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted">Nama Pelabuhan</label>
+                                <input type="text" name="name" id="edit-name" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted">Kode Pelabuhan (LOCODE)</label>
+                                <input type="text" name="code" id="edit-code" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted">Negara Lokasi</label>
+                                <select name="country_id" id="edit-country" class="form-select" required>
+                                    @foreach($countries as $c)
+                                        <option value="{{ $c->id }}" data-lat="{{ $c->latitude }}" data-lng="{{ $c->longitude }}">
+                                            {{ $c->name }} ({{ $c->code }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Latitude</label>
+                                    <input type="number" step="any" name="latitude" id="edit-latitude" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Longitude</label>
+                                    <input type="number" step="any" name="longitude" id="edit-longitude" class="form-control" required>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted">Longitude</label>
-                            <input type="number" step="any" name="longitude" id="edit-longitude" class="form-control" required>
+                        <div class="col-lg-6 d-flex flex-column">
+                            <label class="form-label fw-bold small text-muted d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-map me-1"></i>Pilih Lokasi di Peta</span>
+                                <span class="badge bg-info-subtle text-info small fw-normal"><i class="bi bi-hand-index-thumb me-1"></i>Klik / Geser Marker</span>
+                            </label>
+                            <div id="editMap" class="map-picker shadow-sm flex-grow-1"></div>
+                            <div class="form-text small text-muted mt-1">
+                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>Klik lokasi pada peta atau geser marker untuk memperbarui koordinat.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -251,10 +297,90 @@
 @endsection
 
 @push('scripts')
+<!-- Leaflet Map JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Edit Modal population
+        const defaultLat = -2.548926; // Center of Indonesia / World
+        const defaultLng = 118.014863;
+        const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        const tileAttr = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
+        let createMap = null;
+        let createMarker = null;
+        let editMap = null;
+        let editMarker = null;
+
+        // --- CREATE PORT MAP LOGIC ---
+        const createModalEl = document.getElementById('createPortModal');
+        const createLatInput = document.getElementById('create-latitude');
+        const createLngInput = document.getElementById('create-longitude');
+        const createCountrySelect = document.getElementById('create-country');
+
+        createModalEl.addEventListener('shown.bs.modal', function () {
+            let initialLat = parseFloat(createLatInput.value) || defaultLat;
+            let initialLng = parseFloat(createLngInput.value) || defaultLng;
+            let initialZoom = (createLatInput.value && createLngInput.value) ? 8 : 4;
+
+            if (!createMap) {
+                createMap = L.map('createMap').setView([initialLat, initialLng], initialZoom);
+                L.tileLayer(tileUrl, { attribution: tileAttr }).addTo(createMap);
+
+                createMarker = L.marker([initialLat, initialLng], { draggable: true }).addTo(createMap);
+
+                createMarker.on('dragend', function (e) {
+                    const pos = e.target.getLatLng();
+                    createLatInput.value = pos.lat.toFixed(6);
+                    createLngInput.value = pos.lng.toFixed(6);
+                });
+
+                createMap.on('click', function (e) {
+                    const lat = e.latlng.lat;
+                    const lng = e.latlng.lng;
+                    createMarker.setLatLng([lat, lng]);
+                    createLatInput.value = lat.toFixed(6);
+                    createLngInput.value = lng.toFixed(6);
+                });
+            } else {
+                createMap.invalidateSize();
+                createMap.setView([initialLat, initialLng], initialZoom);
+                createMarker.setLatLng([initialLat, initialLng]);
+            }
+        });
+
+        function syncCreateMapFromInputs() {
+            const lat = parseFloat(createLatInput.value);
+            const lng = parseFloat(createLngInput.value);
+            if (!isNaN(lat) && !isNaN(lng) && createMap && createMarker) {
+                createMarker.setLatLng([lat, lng]);
+                createMap.panTo([lat, lng]);
+            }
+        }
+        createLatInput.addEventListener('input', syncCreateMapFromInputs);
+        createLngInput.addEventListener('input', syncCreateMapFromInputs);
+
+        createCountrySelect.addEventListener('change', function () {
+            const selectedOption = this.options[this.selectedIndex];
+            const cLat = parseFloat(selectedOption.getAttribute('data-lat'));
+            const cLng = parseFloat(selectedOption.getAttribute('data-lng'));
+
+            if (!isNaN(cLat) && !isNaN(cLng)) {
+                createLatInput.value = cLat.toFixed(6);
+                createLngInput.value = cLng.toFixed(6);
+                if (createMap && createMarker) {
+                    createMap.setView([cLat, cLng], 6);
+                    createMarker.setLatLng([cLat, cLng]);
+                }
+            }
+        });
+
+        // --- EDIT PORT MAP LOGIC ---
         const editButtons = document.querySelectorAll('.edit-btn');
+        const editModalEl = document.getElementById('editPortModal');
+        const editLatInput = document.getElementById('edit-latitude');
+        const editLngInput = document.getElementById('edit-longitude');
+        const editCountrySelect = document.getElementById('edit-country');
+
         editButtons.forEach(btn => {
             btn.addEventListener('click', function () {
                 const id = this.getAttribute('data-id');
@@ -267,10 +393,66 @@
                 document.getElementById('editForm').action = `/admin/ports/${id}`;
                 document.getElementById('edit-name').value = name;
                 document.getElementById('edit-code').value = code;
-                document.getElementById('edit-country').value = country;
-                document.getElementById('edit-latitude').value = lat;
-                document.getElementById('edit-longitude').value = lng;
+                editCountrySelect.value = country;
+                editLatInput.value = lat;
+                editLngInput.value = lng;
             });
+        });
+
+        editModalEl.addEventListener('shown.bs.modal', function () {
+            let latVal = parseFloat(editLatInput.value) || defaultLat;
+            let lngVal = parseFloat(editLngInput.value) || defaultLng;
+
+            if (!editMap) {
+                editMap = L.map('editMap').setView([latVal, lngVal], 8);
+                L.tileLayer(tileUrl, { attribution: tileAttr }).addTo(editMap);
+
+                editMarker = L.marker([latVal, lngVal], { draggable: true }).addTo(editMap);
+
+                editMarker.on('dragend', function (e) {
+                    const pos = e.target.getLatLng();
+                    editLatInput.value = pos.lat.toFixed(6);
+                    editLngInput.value = pos.lng.toFixed(6);
+                });
+
+                editMap.on('click', function (e) {
+                    const lat = e.latlng.lat;
+                    const lng = e.latlng.lng;
+                    editMarker.setLatLng([lat, lng]);
+                    editLatInput.value = lat.toFixed(6);
+                    editLngInput.value = lng.toFixed(6);
+                });
+            } else {
+                editMap.invalidateSize();
+                editMap.setView([latVal, lngVal], 8);
+                editMarker.setLatLng([latVal, lngVal]);
+            }
+        });
+
+        function syncEditMapFromInputs() {
+            const lat = parseFloat(editLatInput.value);
+            const lng = parseFloat(editLngInput.value);
+            if (!isNaN(lat) && !isNaN(lng) && editMap && editMarker) {
+                editMarker.setLatLng([lat, lng]);
+                editMap.panTo([lat, lng]);
+            }
+        }
+        editLatInput.addEventListener('input', syncEditMapFromInputs);
+        editLngInput.addEventListener('input', syncEditMapFromInputs);
+
+        editCountrySelect.addEventListener('change', function () {
+            const selectedOption = this.options[this.selectedIndex];
+            const cLat = parseFloat(selectedOption.getAttribute('data-lat'));
+            const cLng = parseFloat(selectedOption.getAttribute('data-lng'));
+
+            if (!isNaN(cLat) && !isNaN(cLng)) {
+                editLatInput.value = cLat.toFixed(6);
+                editLngInput.value = cLng.toFixed(6);
+                if (editMap && editMarker) {
+                    editMap.setView([cLat, cLng], 6);
+                    editMarker.setLatLng([cLat, cLng]);
+                }
+            }
         });
 
         // Delete Modal population
@@ -287,3 +469,4 @@
     });
 </script>
 @endpush
+

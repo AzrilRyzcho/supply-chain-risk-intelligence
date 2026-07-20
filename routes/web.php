@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\UserDashboardController;
+use App\Http\Controllers\User\ImportShipmentController;
+use App\Http\Controllers\User\RouteJourneyController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\PortController;
@@ -30,6 +32,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/risk', [UserDashboardController::class, 'risk'])->name('risk');
         Route::get('/articles', [UserDashboardController::class, 'articles'])->name('articles');
         Route::get('/settings', [UserDashboardController::class, 'settings'])->name('settings');
+
+        // Import Shipments & Route Journey
+        Route::get('/shipments', [ImportShipmentController::class, 'index'])->name('shipments.index');
+        Route::get('/shipments/create', [ImportShipmentController::class, 'create'])->name('shipments.create');
+        Route::post('/shipments', [ImportShipmentController::class, 'store'])->name('shipments.store');
+        Route::get('/shipments/{shipment}', [ImportShipmentController::class, 'show'])->name('shipments.show');
+        Route::delete('/shipments/{shipment}', [ImportShipmentController::class, 'destroy'])->name('shipments.destroy');
+        Route::get('/shipments/{shipment}/route', [RouteJourneyController::class, 'show'])->name('shipments.route');
+        Route::get('/api/shipments/{shipment}/route-data', [RouteJourneyController::class, 'routeData'])->name('api.shipments.route-data');
+        Route::post('/api/route-preview', [RouteJourneyController::class, 'routePreview'])->name('api.route-preview');
     });
 
     // Profile Settings

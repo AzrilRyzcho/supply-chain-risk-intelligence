@@ -10,6 +10,12 @@
 
         <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
             <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
+                <!-- Theme Toggle Switch -->
+                <li class="nav-item me-3">
+                    <button id="theme-toggle" class="btn btn-sm btn-light border border-light-subtle d-flex align-items-center justify-content-center p-0" style="width: 32px; height: 32px; border-radius: 50%;" title="Ganti Tema">
+                        <i class="bi bi-moon-stars text-secondary" id="theme-icon"></i>
+                    </button>
+                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle text-dark fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-person-circle me-1"></i>

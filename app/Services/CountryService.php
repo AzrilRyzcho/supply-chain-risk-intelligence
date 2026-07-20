@@ -155,14 +155,35 @@ class CountryService
     {
         $years = [2021, 2022, 2023, 2024, 2025];
         
+        // Define risk profile deterministically based on country ID
+        $isHighRisk = ($country->id % 7 == 0);
+        $isMediumRisk = (!$isHighRisk && $country->id % 3 == 0);
+        
         // 1. Weather
         if (!$country->weather) {
+            if ($isHighRisk) {
+                $temp = rand(300, 380) / 10.0;
+                $rain = rand(10, 40) / 10.0;
+                $wind = rand(80, 120) / 10.0;
+                $storm = rand(45, 65);
+            } elseif ($isMediumRisk) {
+                $temp = rand(220, 320) / 10.0;
+                $rain = rand(5, 20) / 10.0;
+                $wind = rand(60, 90) / 10.0;
+                $storm = rand(20, 35);
+            } else {
+                $temp = rand(150, 250) / 10.0;
+                $rain = rand(0, 10) / 10.0;
+                $wind = rand(20, 50) / 10.0;
+                $storm = rand(2, 12);
+            }
+
             Weather::create([
                 'country_id' => $country->id,
-                'temperature' => rand(150, 310) / 10.0, // 15.0 to 31.0
-                'rain' => rand(5, 180) / 10.0, // 0.5 to 18.0
-                'wind_speed' => rand(40, 240) / 10.0, // 4.0 to 24.0
-                'storm_risk' => rand(0, 25), // 0 to 25%
+                'temperature' => $temp,
+                'rain' => $rain,
+                'wind_speed' => $wind,
+                'storm_risk' => $storm,
                 'fetched_at' => now(),
             ]);
         }
@@ -184,10 +205,17 @@ class CountryService
         // 3. Inflation
         if ($country->inflations()->count() == 0) {
             foreach ($years as $year) {
+                if ($isHighRisk) {
+                    $rate = rand(140, 190) / 10.0; // 14.0% to 19.0% -> yield score 60-85
+                } elseif ($isMediumRisk) {
+                    $rate = rand(80, 120) / 10.0; // 8.0% to 12.0% -> yield score 30-50
+                } else {
+                    $rate = rand(25, 45) / 10.0; // 2.5% to 4.5% -> yield score 2.5-12.5
+                }
                 Inflation::create([
                     'country_id' => $country->id,
                     'year' => $year,
-                    'rate' => rand(10, 80) / 10.0, // 1.0% to 8.0%
+                    'rate' => $rate,
                 ]);
             }
         }
@@ -199,7 +227,7 @@ class CountryService
                 Export::create([
                     'country_id' => $country->id,
                     'year' => $gdp->year,
-                    'value' => round($gdp->value * (rand(10, 35) / 100.0), 2), // 10% to 35% of GDP
+                    'value' => round($gdp->value * (rand(10, 35) / 100.0), 2),
                 ]);
             }
         }
@@ -210,44 +238,133 @@ class CountryService
                 Import::create([
                     'country_id' => $country->id,
                     'year' => $gdp->year,
-                    'value' => round($gdp->value * (rand(12, 38) / 100.0), 2), // 12% to 38% of GDP
+                    'value' => round($gdp->value * (rand(12, 38) / 100.0), 2),
                 ]);
             }
         }
 
         // 5. Ports (at least 1 port for the map)
         if ($country->ports()->count() == 0) {
-            Port::create([
-                'name' => "Port of " . ($country->capital ?? $country->name),
-                'code' => strtoupper(substr($country->name, 0, 3)) . "PRT",
-                'country_id' => $country->id,
-                'latitude' => $country->latitude + (rand(-100, 100) / 1000.0),
-                'longitude' => $country->longitude + (rand(-100, 100) / 1000.0),
-            ]);
+            $landlocked = [
+                'AF', 'AM', 'AD', 'AT', 'AZ', 'BY', 'BO', 'BW', 'BF', 'BI', 'CF', 'TD', 'CZ', 'ET', 'HU', 
+                'KG', 'LA', 'LS', 'LI', 'LU', 'MK', 'MW', 'ML', 'MD', 'MN', 'NP', 'NE', 'PY', 'RW', 'SM', 
+                'SK', 'SS', 'SZ', 'CH', 'TJ', 'UG', 'UZ', 'VA', 'ZM', 'ZW'
+            ];
+            
+            if (!in_array(strtoupper($country->code), $landlocked)) {
+                $majorPorts = [
+                    'US' => ['name' => 'Port of New York', 'code' => 'USNYC', 'lat' => 40.7128, 'lng' => -74.0060],
+                    'IN' => ['name' => 'Port of Mumbai', 'code' => 'INBOM', 'lat' => 18.9300, 'lng' => 72.8300],
+                    'GB' => ['name' => 'Port of Southampton', 'code' => 'GBSOU', 'lat' => 50.9097, 'lng' => -1.4044],
+                    'JP' => ['name' => 'Port of Yokohama', 'code' => 'JPYOK', 'lat' => 35.4444, 'lng' => 139.6425],
+                    'ES' => ['name' => 'Port of Valencia', 'code' => 'ESVLC', 'lat' => 39.4699, 'lng' => -0.3774],
+                    'FR' => ['name' => 'Port of Marseille', 'code' => 'FRMRS', 'lat' => 43.2965, 'lng' => 5.3698],
+                    'RU' => ['name' => 'Port of St. Petersburg', 'code' => 'RULED', 'lat' => 59.9343, 'lng' => 30.3351],
+                    'BR' => ['name' => 'Port of Santos', 'code' => 'BRSSZ', 'lat' => -23.9618, 'lng' => -46.3322],
+                    'CA' => ['name' => 'Port of Vancouver', 'code' => 'CAVAN', 'lat' => 49.2827, 'lng' => -123.1207],
+                    'ZA' => ['name' => 'Port of Cape Town', 'code' => 'ZACPT', 'lat' => -33.9249, 'lng' => 18.4241],
+                    'NG' => ['name' => 'Port of Lagos', 'code' => 'NGLOS', 'lat' => 6.4550, 'lng' => 3.3840],
+                    'AU' => ['name' => 'Port of Sydney', 'code' => 'AUSYD', 'lat' => -33.8688, 'lng' => 151.2093],
+                    'IT' => ['name' => 'Port of Genoa', 'code' => 'ITGOA', 'lat' => 44.4056, 'lng' => 8.9463],
+                    'TR' => ['name' => 'Port of Istanbul', 'code' => 'TRIST', 'lat' => 41.0082, 'lng' => 28.9784],
+                    'GR' => ['name' => 'Port of Piraeus', 'code' => 'GRTPA', 'lat' => 37.9422, 'lng' => 23.6462],
+                    'MX' => ['name' => 'Port of Veracruz', 'code' => 'MXVER', 'lat' => 19.1738, 'lng' => -96.1342],
+                    'EG' => ['name' => 'Port of Alexandria', 'code' => 'EGALY', 'lat' => 31.2001, 'lng' => 29.9187],
+                    'TH' => ['name' => 'Port of Laem Chabang', 'code' => 'THLCH', 'lat' => 13.0800, 'lng' => 100.9000],
+                    'VN' => ['name' => 'Port of Hai Phong', 'code' => 'VNHPH', 'lat' => 20.8600, 'lng' => 106.6800],
+                ];
+                
+                $code = strtoupper($country->code);
+                if (isset($majorPorts[$code])) {
+                    $portName = $majorPorts[$code]['name'];
+                    $portCode = $majorPorts[$code]['code'];
+                    $lat = $majorPorts[$code]['lat'];
+                    $lng = $majorPorts[$code]['lng'];
+                } else {
+                    $portName = "Port of " . ($country->capital ?? $country->name);
+                    $portCode = strtoupper(substr($country->name, 0, 3)) . "PRT";
+                    $lat = $country->latitude + (rand(-100, 100) / 1000.0);
+                    $lng = $country->longitude + (rand(-100, 100) / 1000.0);
+                }
+                
+                Port::create([
+                    'name' => $portName,
+                    'code' => $portCode,
+                    'country_id' => $country->id,
+                    'latitude' => $lat,
+                    'longitude' => $lng,
+                ]);
+            }
         }
 
         // 6. News & Sentiment
         if ($country->news()->count() == 0) {
-            $sentiments = ['positive', 'neutral', 'negative'];
-            $newsTitles = [
-                "Logistics optimization increases port throughput in " . $country->name . ".",
-                "Trade policies implement new import tariffs causing minor delays.",
-                "Weather conditions cause scheduling conflict and shipping bottleneck."
-            ];
+            // High risk profile has more negative articles
+            if ($isHighRisk) {
+                $fallbackArticles = [
+                    ['title' => "Trade: Geopolitical tensions escalate as " . $country->name . " introduces new trade restrictions.", 'source' => 'Global Trade Review', 'sentiment' => 'negative', 'positive' => 0, 'negative' => 5],
+                    ['title' => "Shipping: Severe storm warnings raise shipping safety alerts across " . $country->name . " major sea routes.", 'source' => 'Maritime News Daily', 'sentiment' => 'negative', 'positive' => 0, 'negative' => 4],
+                    ['title' => "Logistics: Labor strike at " . $country->name . " container terminals threatens to delay cargo shipments.", 'source' => 'Port Technology', 'sentiment' => 'negative', 'positive' => 0, 'negative' => 3],
+                    ['title' => "Economy: Rising inflation in " . $country->name . " triggers serious concerns over manufacturing export costs.", 'source' => 'World Economic Watch', 'sentiment' => 'negative', 'positive' => 0, 'negative' => 4],
+                    ['title' => "Economy: " . $country->name . " currency volatility spikes, prompting importer hedging strategy adjustments.", 'source' => 'Forex Trade Insights', 'sentiment' => 'negative', 'positive' => 0, 'negative' => 3],
+                    ['title' => "Shipping: Favorable weather conditions accelerate vessel movement through " . $country->name . " main shipping channels.", 'source' => 'Shipping Weekly', 'sentiment' => 'positive', 'positive' => 3, 'negative' => 0],
+                    ['title' => "Logistics: " . $country->name . " major ports adopt smart digital logistics tracking systems to minimize congestion.", 'source' => 'Logistics Tech Today', 'sentiment' => 'positive', 'positive' => 4, 'negative' => 0],
+                    ['title' => "Trade: " . $country->name . " schedules bilateral economic summit to discuss regional supply chain security.", 'source' => 'Global Politics Weekly', 'sentiment' => 'neutral', 'positive' => 1, 'negative' => 1],
+                    ['title' => "Trade: " . $country->name . " registers record high cargo throughput in latest quarterly trade index report.", 'source' => 'Asia Shipping Journal', 'sentiment' => 'positive', 'positive' => 3, 'negative' => 0],
+                ];
+            } elseif ($isMediumRisk) {
+                $fallbackArticles = [
+                    ['title' => "Trade: Geopolitical tensions escalate as " . $country->name . " introduces new trade restrictions.", 'source' => 'Global Trade Review', 'sentiment' => 'negative', 'positive' => 0, 'negative' => 4],
+                    ['title' => "Shipping: Severe storm warnings raise shipping safety alerts across " . $country->name . " major sea routes.", 'source' => 'Maritime News Daily', 'sentiment' => 'negative', 'positive' => 0, 'negative' => 3],
+                    ['title' => "Logistics: Labor strike at " . $country->name . " container terminals threatens to delay cargo shipments.", 'source' => 'Port Technology', 'sentiment' => 'negative', 'positive' => 0, 'negative' => 3],
+                    ['title' => "Economy: Rising inflation in " . $country->name . " triggers serious concerns over manufacturing export costs.", 'source' => 'World Economic Watch', 'sentiment' => 'neutral', 'positive' => 1, 'negative' => 1],
+                    ['title' => "Economy: " . $country->name . " currency volatility spikes, prompting importer hedging strategy adjustments.", 'source' => 'Forex Trade Insights', 'sentiment' => 'neutral', 'positive' => 1, 'negative' => 1],
+                    ['title' => "Shipping: Favorable weather conditions accelerate vessel movement through " . $country->name . " main shipping channels.", 'source' => 'Shipping Weekly', 'sentiment' => 'positive', 'positive' => 3, 'negative' => 0],
+                    ['title' => "Logistics: " . $country->name . " major ports adopt smart digital logistics tracking systems to minimize congestion.", 'source' => 'Logistics Tech Today', 'sentiment' => 'positive', 'positive' => 4, 'negative' => 0],
+                    ['title' => "Trade: " . $country->name . " schedules bilateral economic summit to discuss regional supply chain security.", 'source' => 'Global Politics Weekly', 'sentiment' => 'neutral', 'positive' => 1, 'negative' => 1],
+                    ['title' => "Trade: " . $country->name . " registers record high cargo throughput in latest quarterly trade index report.", 'source' => 'Asia Shipping Journal', 'sentiment' => 'positive', 'positive' => 3, 'negative' => 0],
+                ];
+            } else {
+                $fallbackArticles = [
+                    ['title' => "Trade: Geopolitical tensions escalate as " . $country->name . " introduces new trade restrictions.", 'source' => 'Global Trade Review', 'sentiment' => 'neutral', 'positive' => 1, 'negative' => 1],
+                    ['title' => "Shipping: Severe storm warnings raise shipping safety alerts across " . $country->name . " major sea routes.", 'source' => 'Maritime News Daily', 'sentiment' => 'neutral', 'positive' => 1, 'negative' => 1],
+                    ['title' => "Logistics: Labor strike at " . $country->name . " container terminals threatens to delay cargo shipments.", 'source' => 'Port Technology', 'sentiment' => 'neutral', 'positive' => 1, 'negative' => 1],
+                    ['title' => "Economy: Rising inflation in " . $country->name . " triggers serious concerns over manufacturing export costs.", 'source' => 'World Economic Watch', 'sentiment' => 'positive', 'positive' => 3, 'negative' => 0],
+                    ['title' => "Economy: " . $country->name . " currency volatility spikes, prompting importer hedging strategy adjustments.", 'source' => 'Forex Trade Insights', 'sentiment' => 'positive', 'positive' => 3, 'negative' => 0],
+                    ['title' => "Shipping: Favorable weather conditions accelerate vessel movement through " . $country->name . " main shipping channels.", 'source' => 'Shipping Weekly', 'sentiment' => 'positive', 'positive' => 3, 'negative' => 0],
+                    ['title' => "Logistics: " . $country->name . " major ports adopt smart digital logistics tracking systems to minimize congestion.", 'source' => 'Logistics Tech Today', 'sentiment' => 'positive', 'positive' => 4, 'negative' => 0],
+                    ['title' => "Trade: " . $country->name . " schedules bilateral economic summit to discuss regional supply chain security.", 'source' => 'Global Politics Weekly', 'sentiment' => 'neutral', 'positive' => 1, 'negative' => 1],
+                    ['title' => "Trade: " . $country->name . " registers record high cargo throughput in latest quarterly trade index report.", 'source' => 'Asia Shipping Journal', 'sentiment' => 'positive', 'positive' => 3, 'negative' => 0],
+                ];
+            }
             
-            foreach ($newsTitles as $index => $title) {
-                $sentiment = $sentiments[$index];
+            $sourceUrls = [
+                'Global Trade Review'    => 'https://www.gtreview.com/',
+                'Maritime News Daily'    => 'https://www.maritime-executive.com/',
+                'Port Technology'        => 'https://www.porttechnology.org/',
+                'World Economic Watch'   => 'https://www.bloomberg.com/economics',
+                'Forex Trade Insights'   => 'https://www.investing.com/news/forex-news',
+                'Shipping Weekly'        => 'https://splash247.com/',
+                'Logistics Tech Today'   => 'https://www.logisticsmgmt.com/',
+                'Global Politics Weekly' => 'https://www.foreignaffairs.com/',
+                'Asia Shipping Journal'  => 'https://www.joc.com/',
+            ];
+
+            foreach ($fallbackArticles as $index => $art) {
+                // Distribute dates: first 3 articles = today, next 2 = yesterday, rest = 2 days ago
+                $daysBack = $index < 3 ? 0 : ($index < 5 ? 1 : 2);
                 News::create([
                     'country_id' => $country->id,
-                    'title' => $title,
-                    'source' => 'Global Logistics Intelligence',
-                    'url' => 'https://example.com/logistics-news-' . strtolower($country->code) . '-' . $index,
-                    'sentiment' => $sentiment,
-                    'positive_score' => $sentiment === 'positive' ? 3 : ($sentiment === 'neutral' ? 1 : 0),
-                    'negative_score' => $sentiment === 'negative' ? 3 : ($sentiment === 'neutral' ? 1 : 0),
-                    'published_at' => now()->subDays($index + 1),
+                    'title' => $art['title'],
+                    'source' => $art['source'],
+                    'url' => $sourceUrls[$art['source']] ?? 'https://www.reuters.com/business/',
+                    'sentiment' => $art['sentiment'],
+                    'positive_score' => $art['positive'],
+                    'negative_score' => $art['negative'],
+                    'published_at' => now()->subDays($daysBack)->subHours(rand(0, 22))->subMinutes(rand(0, 59)),
                 ]);
             }
+
         }
 
         // 7. Risk Score

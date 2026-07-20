@@ -80,35 +80,42 @@ function renderPortsOnMapAndTable(ports) {
         map.fitBounds(bounds, { padding: [40, 40] });
     }
 
-    // Repopulate sidebar table
-    const tbody = document.querySelector('table tbody');
-    if (tbody) {
-        tbody.innerHTML = '';
+    // Repopulate list group
+    const listGroup = document.getElementById('ports-list-group');
+    if (listGroup) {
+        listGroup.innerHTML = '';
 
         if (ports.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted py-4">Belum ada pelabuhan yang terdaftar atau cocok.</td></tr>`;
+            listGroup.innerHTML = `<div class="text-center text-muted py-4 small">Belum ada pelabuhan yang terdaftar atau cocok.</div>`;
             return;
         }
 
         ports.forEach(port => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>
-                    <span class="fw-bold text-slate-855 d-block">${port.name}</span>
-                    <span class="text-muted small">Kode: ${port.code ?? 'N/A'}</span>
-                </td>
-                <td>
-                    <span class="badge bg-secondary">${port.country ? port.country.name : 'N/A'}</span>
-                </td>
-                <td class="text-center">
-                    <button class="btn btn-sm btn-outline-info fw-bold" 
+            const item = document.createElement('div');
+            item.className = 'list-group-item list-group-item-custom p-3 d-flex align-items-center justify-content-between';
+            
+            item.innerHTML = `
+                <div class="pe-2 text-truncate">
+                    <span class="fw-bold text-slate-800 d-block text-truncate" style="font-size: 0.95rem;">
+                        <i class="bi bi-anchor text-primary me-1"></i>${port.name}
+                    </span>
+                    <div class="d-flex align-items-center gap-2 mt-1">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle text-truncate" style="font-size: 0.72rem; font-weight: 500;">
+                            ${port.country ? port.country.name : 'N/A'}
+                        </span>
+                        <span class="text-muted small" style="font-size: 0.75rem;">Kode: ${port.code ?? 'N/A'}</span>
+                    </div>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary rounded-circle p-0 d-flex align-items-center justify-content-center" 
+                            style="width: 32px; height: 32px; transition: all 0.2s;"
                             onclick="focusPort(${port.id}, ${port.latitude}, ${port.longitude}, '${port.name}')"
                             title="Fokus Lokasi">
                         <i class="bi bi-geo-alt"></i>
                     </button>
-                </td>
+                </div>
             `;
-            tbody.appendChild(tr);
+            listGroup.appendChild(item);
         });
     }
 }

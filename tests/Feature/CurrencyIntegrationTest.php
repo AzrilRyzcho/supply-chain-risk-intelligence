@@ -62,6 +62,11 @@ class CurrencyIntegrationTest extends TestCase
         $history = $service->getHistoricalRates('USD', 'IDR', 30);
         $this->assertArrayHasKey('2026-01-02', $history['rates']);
         $this->assertEquals(16500, $history['rates']['2026-01-02']['IDR']);
+
+        // 6. Test Service bulk historical rates fetch
+        $allHistory = $service->getAllHistoricalRates('USD', 30);
+        $this->assertArrayHasKey('2026-01-02', $allHistory['rates']);
+        $this->assertEquals(16500, $allHistory['rates']['2026-01-02']['IDR']);
     }
 
     public function test_currency_api_returns_correct_response_structure(): void

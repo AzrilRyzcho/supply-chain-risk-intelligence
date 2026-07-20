@@ -14,6 +14,7 @@ use App\Models\News;
 use App\Models\Port;
 use App\Models\RiskScore;
 use App\Models\Article;
+use App\Models\ImportShipment;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -346,49 +347,327 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 8. Seed News & Sentiments
-        News::create([
-            'country_id' => $germany->id,
-            'title' => 'Inflation increases while exports decrease due to war.',
-            'source' => 'Global Logistics News',
-            'url' => 'https://example.com/germany-inflation',
-            'sentiment' => 'negative',
-            'positive_score' => 1,
-            'negative_score' => 3,
-            'published_at' => now()->subDay(),
-        ]);
+        $now = now();
+        
+        // Indonesia (ID) News
+        $indonesiaNews = [
+            [
+                'title' => 'Trade: Indonesia Integrasikan Sistem Logistik Nasional Lewat National Logistics Ecosystem (NLE)',
+                'source' => 'Antara News',
+                'url' => 'https://www.antaranews.com/search?q=National+Logistics+Ecosystem',
+                'sentiment' => 'positive',
+                'positive_score' => 4,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(1),
+            ],
+            [
+                'title' => 'Shipping: Pelindo Multi Terminal Pacu Standardisasi Layanan Pelabuhan Seluruh Indonesia',
+                'source' => 'Bisnis Indonesia',
+                'url' => 'https://search.bisnis.com/?q=Pelindo+Multi+Terminal',
+                'sentiment' => 'positive',
+                'positive_score' => 3,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(2),
+            ],
+            [
+                'title' => 'Logistics: Kemacetan Jalur Distribusi Logistik di Pelabuhan Merak Menjelang Libur Panjang',
+                'source' => 'Detik Finance',
+                'url' => 'https://www.detik.com/search/search_all?query=Merak+logistik',
+                'sentiment' => 'negative',
+                'positive_score' => 1,
+                'negative_score' => 4,
+                'published_at' => (clone $now)->subDays(3),
+            ],
+            [
+                'title' => 'Economy: Dampak Depresiasi Rupiah Terhadap Biaya Impor Bahan Baku Industri Manufaktur',
+                'source' => 'Kontan',
+                'url' => 'https://www.kontan.co.id/search/?search=rupiah+impor',
+                'sentiment' => 'negative',
+                'positive_score' => 1,
+                'negative_score' => 3,
+                'published_at' => (clone $now)->subDays(4),
+            ],
+            [
+                'title' => 'Shipping: Rute Pelayaran Baru Direct Call Indonesia - Amerika Serikat Resmi Dibuka dari Tanjung Priok',
+                'source' => 'Jakarta Shipping Gazette',
+                'url' => 'https://shippingsg.com/?s=direct+call',
+                'sentiment' => 'positive',
+                'positive_score' => 4,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(5),
+            ],
+            [
+                'title' => 'Trade: Kementerian Perhubungan Operasikan Pelabuhan Patimban Tahap 2 untuk Perluas Ekspor Otomotif',
+                'source' => 'Kompas',
+                'url' => 'https://search.kompas.com/?q=Pelabuhan+Patimban',
+                'sentiment' => 'positive',
+                'positive_score' => 4,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(6),
+            ],
+            [
+                'title' => 'Economy: Inflasi RI Terjaga pada Sasaran 2,5 Persen di Tengah Pemulihan Ekonomi Nasional',
+                'source' => 'Bank Indonesia',
+                'url' => 'https://www.bi.go.id/id/statistik/indikator/inflasi.aspx',
+                'sentiment' => 'positive',
+                'positive_score' => 3,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(7),
+            ],
+            [
+                'title' => 'Logistics: Pemerintah Tingkatkan Infrastruktur Konektivitas Udara Guna Tekan Biaya Logistik di Timur Indonesia',
+                'source' => 'Tempo',
+                'url' => 'https://www.tempo.co/search?q=konektivitas+udara+logistik',
+                'sentiment' => 'positive',
+                'positive_score' => 3,
+                'negative_score' => 1,
+                'published_at' => (clone $now)->subDays(8),
+            ],
+        ];
 
-        News::create([
-            'country_id' => $germany->id,
-            'title' => 'Port of Hamburg implements new smart logistics systems to improve throughput.',
-            'source' => 'Shipping Weekly',
-            'url' => 'https://example.com/hamburg-smart',
-            'sentiment' => 'positive',
-            'positive_score' => 2,
-            'negative_score' => 0,
-            'published_at' => now(),
-        ]);
+        foreach ($indonesiaNews as $art) {
+            News::create(array_merge($art, ['country_id' => $indonesia->id]));
+        }
 
-        News::create([
-            'country_id' => $indonesia->id,
-            'title' => 'Tanjung Priok modernizes digital container yard management.',
-            'source' => 'Jakarta Shipping Gazette',
-            'url' => 'https://example.com/priok-modern',
-            'sentiment' => 'positive',
-            'positive_score' => 3,
-            'negative_score' => 0,
-            'published_at' => now()->subDays(2),
-        ]);
+        // Germany (DE) News
+        $germanyNews = [
+            [
+                'title' => 'Economy: German economy stagnates as exports to major trading partners decline in 2026',
+                'source' => 'Reuters',
+                'url' => 'https://www.reuters.com/german-economy-stagnates-2026',
+                'sentiment' => 'negative',
+                'positive_score' => 1,
+                'negative_score' => 3,
+                'published_at' => (clone $now)->subDays(1),
+            ],
+            [
+                'title' => 'Shipping: Port of Hamburg reports increase in container throughput driven by European trade recovery',
+                'source' => 'Shipping Weekly',
+                'url' => 'https://shippingweekly.com/hamburg-throughput-rise',
+                'sentiment' => 'positive',
+                'positive_score' => 3,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(2),
+            ],
+            [
+                'title' => 'Logistics: Germany invests 12 billion euros in upgrading national railway logistics corridors',
+                'source' => 'Handelsblatt',
+                'url' => 'https://www.handelsblatt.com/germany-railway-investment',
+                'sentiment' => 'positive',
+                'positive_score' => 4,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(3),
+            ],
+            [
+                'title' => 'Trade: Rising energy costs continue to pressure Germany\'s chemical manufacturing exports',
+                'source' => 'Deutsche Welle',
+                'url' => 'https://www.dw.com/german-chemical-exports-pressure',
+                'sentiment' => 'negative',
+                'positive_score' => 1,
+                'negative_score' => 3,
+                'published_at' => (clone $now)->subDays(4),
+            ],
+            [
+                'title' => 'Logistics: Deutsche Bahn logistics strike causes widespread delays across central European supply chains',
+                'source' => 'Logistics Manager',
+                'url' => 'https://logisticsmanager.com/deutsche-bahn-strike-delays',
+                'sentiment' => 'negative',
+                'positive_score' => 1,
+                'negative_score' => 4,
+                'published_at' => (clone $now)->subDays(5),
+            ],
+            [
+                'title' => 'Trade: Germany and France sign new trade accord to secure critical raw materials logistics',
+                'source' => 'Les Echos',
+                'url' => 'https://www.lesechos.fr/germany-france-raw-materials',
+                'sentiment' => 'positive',
+                'positive_score' => 3,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(6),
+            ],
+            [
+                'title' => 'Economy: German inflation cools to 2.0 percent, aligning with European Central Bank target',
+                'source' => 'Frankfurter Allgemeine',
+                'url' => 'https://www.faz.net/german-inflation-cools-2-0',
+                'sentiment' => 'positive',
+                'positive_score' => 3,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(7),
+            ],
+            [
+                'title' => 'Shipping: Hamburg Port Authority deploys AI-powered drone fleet for real-time vessel monitoring',
+                'source' => 'Port Technology',
+                'url' => 'https://www.porttechnology.org/hamburg-drone-monitoring',
+                'sentiment' => 'positive',
+                'positive_score' => 4,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(8),
+            ],
+        ];
 
-        News::create([
-            'country_id' => $china->id,
-            'title' => 'China shipping lanes experience minor congestion ahead of winter rush.',
-            'source' => 'Asia Logistics',
-            'url' => 'https://example.com/china-congest',
-            'sentiment' => 'neutral',
-            'positive_score' => 1,
-            'negative_score' => 1,
-            'published_at' => now()->subHours(12),
-        ]);
+        foreach ($germanyNews as $art) {
+            News::create(array_merge($art, ['country_id' => $germany->id]));
+        }
+
+        // China (CN) News
+        $chinaNews = [
+            [
+                'title' => 'Trade: China\'s exports hit record high despite global trade barriers and rising tariffs',
+                'source' => 'South China Morning Post',
+                'url' => 'https://www.scmp.com/china-exports-record-high',
+                'sentiment' => 'positive',
+                'positive_score' => 4,
+                'negative_score' => 1,
+                'published_at' => (clone $now)->subDays(1),
+            ],
+            [
+                'title' => 'Shipping: Port of Shanghai retains position as world\'s busiest container port with 49 million TEUs',
+                'source' => 'Xinhua',
+                'url' => 'http://www.xinhuanet.com/shanghai-busiest-port',
+                'sentiment' => 'positive',
+                'positive_score' => 4,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(2),
+            ],
+            [
+                'title' => 'Shipping: China introduces new shipping safety regulations in the South China Sea routes',
+                'source' => 'Maritime Executive',
+                'url' => 'https://maritime-executive.com/china-shipping-regulations',
+                'sentiment' => 'neutral',
+                'positive_score' => 2,
+                'negative_score' => 2,
+                'published_at' => (clone $now)->subDays(3),
+            ],
+            [
+                'title' => 'Logistics: Congestion at Ningbo-Zhoushan port eases as digital logistics systems go live',
+                'source' => 'Asia Logistics',
+                'url' => 'https://asialogistics.com/ningbo-zhoushan-congestion-eases',
+                'sentiment' => 'positive',
+                'positive_score' => 3,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(4),
+            ],
+            [
+                'title' => 'Economy: China\'s GDP growth targets set at 5 percent with focus on advanced manufacturing exports',
+                'source' => 'Bloomberg',
+                'url' => 'https://www.bloomberg.com/china-gdp-target-manufacturing',
+                'sentiment' => 'positive',
+                'positive_score' => 3,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(5),
+            ],
+            [
+                'title' => 'Trade: China and ASEAN countries expand maritime trade routes with new container services',
+                'source' => 'Caixin',
+                'url' => 'https://www.caixinglobal.com/china-asean-trade-routes',
+                'sentiment' => 'positive',
+                'positive_score' => 4,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(6),
+            ],
+            [
+                'title' => 'Economy: Chinese yuan stabilizes against USD following central bank intervention',
+                'source' => 'Financial Times',
+                'url' => 'https://www.ft.com/yuan-stabilizes-central-bank',
+                'sentiment' => 'positive',
+                'positive_score' => 3,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(7),
+            ],
+            [
+                'title' => 'Logistics: New high-speed freight railway connects western China directly to Central Asia corridors',
+                'source' => 'China Daily',
+                'url' => 'http://www.chinadaily.com.cn/freight-railway-central-asia',
+                'sentiment' => 'positive',
+                'positive_score' => 4,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(8),
+            ],
+        ];
+
+        foreach ($chinaNews as $art) {
+            News::create(array_merge($art, ['country_id' => $china->id]));
+        }
+
+        // Australia (AU) News
+        $australiaNews = [
+            [
+                'title' => 'Trade: Australia\'s iron ore exports to Asia surge by 15 percent amid high manufacturing demand',
+                'source' => 'The Sydney Morning Herald',
+                'url' => 'https://www.smh.com.au/australia-iron-ore-surge',
+                'sentiment' => 'positive',
+                'positive_score' => 4,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(1),
+            ],
+            [
+                'title' => 'Shipping: Port of Melbourne advances expansion plan to accommodate ultra-large container vessels',
+                'source' => 'Daily Cargo News',
+                'url' => 'https://www.dcn.com.au/melbourne-port-expansion',
+                'sentiment' => 'positive',
+                'positive_score' => 3,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(2),
+            ],
+            [
+                'title' => 'Shipping: Severe storm warnings along Australia\'s eastern coast disrupt maritime cargo shipping',
+                'source' => 'ABC News',
+                'url' => 'https://www.abc.net.au/storm-warnings-shipping-disrupted',
+                'sentiment' => 'negative',
+                'positive_score' => 1,
+                'negative_score' => 4,
+                'published_at' => (clone $now)->subDays(3),
+            ],
+            [
+                'title' => 'Trade: Australia and India implement comprehensive economic cooperation and trade agreement',
+                'source' => 'The Australian',
+                'url' => 'https://www.theaustralian.com.au/australia-india-trade-deal',
+                'sentiment' => 'positive',
+                'positive_score' => 4,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(4),
+            ],
+            [
+                'title' => 'Economy: Reserve Bank of Australia keeps interest rates steady to combat persistent inflation',
+                'source' => 'Australian Financial Review',
+                'url' => 'https://www.afr.com/rba-rates-steady-inflation',
+                'sentiment' => 'neutral',
+                'positive_score' => 2,
+                'negative_score' => 2,
+                'published_at' => (clone $now)->subDays(5),
+            ],
+            [
+                'title' => 'Logistics: Australian agricultural exports face logistics delays due to regional rail maintenance',
+                'source' => 'Stock & Land',
+                'url' => 'https://www.stockandland.com.au/grain-logistics-delays',
+                'sentiment' => 'negative',
+                'positive_score' => 1,
+                'negative_score' => 3,
+                'published_at' => (clone $now)->subDays(6),
+            ],
+            [
+                'title' => 'Trade: Port of Brisbane records major growth in automotive imports during first half of 2026',
+                'source' => 'Courier Mail',
+                'url' => 'https://www.couriermail.com.au/brisbane-automotive-imports-growth',
+                'sentiment' => 'positive',
+                'positive_score' => 3,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(7),
+            ],
+            [
+                'title' => 'Shipping: Australia invests in hydrogen-powered shipping corridors to meet net-zero trade goals',
+                'source' => 'Renew Economy',
+                'url' => 'https://reneweconomy.com.au/australia-hydrogen-shipping',
+                'sentiment' => 'positive',
+                'positive_score' => 4,
+                'negative_score' => 0,
+                'published_at' => (clone $now)->subDays(8),
+            ],
+        ];
+
+        foreach ($australiaNews as $art) {
+            News::create(array_merge($art, ['country_id' => $australia->id]));
+        }
 
         // 9. Seed Risk Scores (Sample index log history)
         RiskScore::create([
@@ -448,7 +727,58 @@ class DatabaseSeeder extends Seeder
             'published_at' => now()->subDays(1),
         ]);
 
+        Article::create([
+            'user_id' => $admin->id,
+            'title' => 'Penerapan Green Logistics untuk Efisiensi Operasional Pelabuhan',
+            'slug' => 'penerapan-green-logistics-pelabuhan',
+            'content' => 'Inisiatif pelabuhan hijau (green ports) kini diadopsi secara masal di Uni Eropa dan Asia Pasifik. Regulasi dekarbonisasi maritim menuntut kapal menurunkan emisi karbon, sekaligus mendorong efisiensi rantai pasok energi alternatif...',
+            'published_at' => now()->subDays(5),
+        ]);
+
+        Article::create([
+            'user_id' => $admin->id,
+            'title' => 'Dampak Kenaikan Tarif Kontainer Global Terhadap Biaya Logistik Impor',
+            'slug' => 'dampak-kenaikan-tarif-kontainer-global',
+            'content' => 'Indeks kontainer global Drewry menunjukkan kenaikan sebesar 25% dalam kurun waktu satu kuartal terakhir. Hal ini disebabkan oleh ketidakseimbangan alokasi kontainer kosong di pelabuhan-pelabuhan utama Asia Timur...',
+            'published_at' => now()->subDays(7),
+        ]);
+
+        Article::create([
+            'user_id' => $admin->id,
+            'title' => 'Potensi Kerugian Akibat Cuaca Ekstrem La Nina pada Rute Pelayaran Pasifik',
+            'slug' => 'potensi-kerugian-cuaca-ekstrem-la-nina',
+            'content' => 'Fenomena La Nina diproyeksikan akan meningkatkan intensitas badai tropis di kawasan Asia Pasifik bagian utara. Perusahaan pelayaran dihimbau untuk memperbarui rute pelayaran alternatif untuk meminimalkan keterlambatan cargo...',
+            'published_at' => now()->subDays(10),
+        ]);
+
+        Article::create([
+            'user_id' => $admin->id,
+            'title' => 'Integrasi IoT dan AI dalam Pelacakan Kontainer Secara Real-time',
+            'slug' => 'integrasi-iot-dan-ai-pelacakan-kontainer',
+            'content' => 'Teknologi sensor Internet of Things (IoT) yang digabungkan dengan analitik prediktif berbasis kecerdasan buatan (AI) terbukti mampu mengurangi kerugian kargo akibat fluktuasi suhu dan kelembaban hingga 40%...',
+            'published_at' => now()->subDays(12),
+        ]);
+
         // 11. Seed Watchlist relations
         $user->watchedCountries()->attach([$indonesia->id, $germany->id]);
+
+        // 12. Seed Sample Import Shipments
+        ImportShipment::create([
+            'user_id' => $user->id,
+            'shipment_number' => 'SHP-2026-0001',
+            'origin_port_id' => Port::where('code', 'DEHAM')->first()->id,
+            'destination_port_id' => Port::where('code', 'IDTPP')->first()->id,
+            'status' => 'In Transit',
+            'transport_mode' => 'Sea Freight',
+        ]);
+
+        ImportShipment::create([
+            'user_id' => $user->id,
+            'shipment_number' => 'SHP-2026-0002',
+            'origin_port_id' => Port::where('code', 'CNSHA')->first()->id,
+            'destination_port_id' => Port::where('code', 'IDTPP')->first()->id,
+            'status' => 'Pending',
+            'transport_mode' => 'Sea Freight',
+        ]);
     }
 }

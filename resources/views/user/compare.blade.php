@@ -312,6 +312,7 @@
             new TomSelect(el1, {
                 create: false,
                 sortField: { field: "text", direction: "asc" },
+                maxOptions: null,
                 render: renderTemplate
             });
         }
@@ -321,6 +322,7 @@
             new TomSelect(el2, {
                 create: false,
                 sortField: { field: "text", direction: "asc" },
+                maxOptions: null,
                 render: renderTemplate
             });
         }

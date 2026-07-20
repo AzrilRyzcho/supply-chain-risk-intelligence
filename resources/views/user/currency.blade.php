@@ -128,20 +128,20 @@
                         <i class="bi bi-graph-up text-primary me-2"></i>Tren Nilai Tukar Historis (30 Hari Terakhir)
                     </h5>
                     <div class="d-flex align-items-center gap-2">
-                        <select id="trend-base" class="form-select form-select-sm" style="width: 100px;" onchange="loadTrendChart()">
-                            <option value="USD" selected>USD</option>
-                            <option value="EUR">EUR</option>
-                            <option value="IDR">IDR</option>
-                            <option value="CNY">CNY</option>
-                            <option value="AUD">AUD</option>
+                        <select id="trend-base" class="form-select form-select-sm" style="width: 120px;">
+                            @foreach($currencies as $curr)
+                                <option value="{{ $curr->code }}" {{ $curr->code == 'USD' ? 'selected' : '' }}>
+                                    {{ $curr->code }}
+                                </option>
+                            @endforeach
                         </select>
                         <span class="text-muted small">ke</span>
-                        <select id="trend-target" class="form-select form-select-sm" style="width: 100px;" onchange="loadTrendChart()">
-                            <option value="IDR" selected>IDR</option>
-                            <option value="EUR">EUR</option>
-                            <option value="CNY">CNY</option>
-                            <option value="AUD">AUD</option>
-                            <option value="USD">USD</option>
+                        <select id="trend-target" class="form-select form-select-sm" style="width: 120px;">
+                            @foreach($currencies as $curr)
+                                <option value="{{ $curr->code }}" {{ $curr->code == 'IDR' ? 'selected' : '' }}>
+                                    {{ $curr->code }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -258,8 +258,35 @@
                     field: "text",
                     direction: "asc"
                 },
+                maxOptions: null,
                 onChange: function() {
                     convertCurrency();
+                }
+            });
+        }
+
+        // Initialize Tom Select for trend base dropdown
+        const trendBaseEl = document.getElementById('trend-base');
+        if (trendBaseEl) {
+            new TomSelect(trendBaseEl, {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                maxOptions: null,
+                onChange: function() {
+                    loadTrendChart();
+                }
+            });
+        }
+
+        // Initialize Tom Select for trend target dropdown
+        const trendTargetEl = document.getElementById('trend-target');
+        if (trendTargetEl) {
+            new TomSelect(trendTargetEl, {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                maxOptions: null,
+                onChange: function() {
+                    loadTrendChart();
                 }
             });
         }

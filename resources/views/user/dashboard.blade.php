@@ -287,11 +287,11 @@
             maxBoundsViscosity: 1.0
         }).setView([15.0, 20.0], 2.5); // Nicely centered global view
 
-        // Premium Light Grayscale Tiles
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        // Natural OpenStreetMap Tiles (like GMaps)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
             noWrap: true,
-            attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
         // Clustered Port Markers

@@ -12,11 +12,11 @@ document.addEventListener("DOMContentLoaded", function () {
         maxBoundsViscosity: 1.0
     }).setView([15.0, 20.0], 2.5); // Centered nicely for a global overview
 
-    // Use CartoDB Positron for a highly premium, clean light gray map style
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    // Use standard OpenStreetMap tiles for natural look (like GMaps)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
         noWrap: true,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
     // Initialize Marker Cluster Group for clean grouping of the 250 countries
